@@ -65,3 +65,5 @@ public class getInitGps implements LocationListener {
 		Toast.makeText(c, msg, Toast.LENGTH_LONG).show();
 	}
 }
+
+// TEST
