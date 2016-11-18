@@ -16,19 +16,20 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
-public class MainActivity extends AppCompatActivity{
+public class MainActivity extends AppCompatActivity {
 
 	//startBool is used to implement singleton design pattern.
 	boolean startBool = false;
 
+	static final int MY_PERMISSION_ACCESS_COURSE_LOCATION = 11;
+
+	//TAG is the process name
 	private static final String TAG = MainActivity.class.getSimpleName();
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-
-		final getInitGps initGps = new getInitGps(this, MainActivity.super.getParent());
 
 		// Start Service
 		final Button start = (Button) findViewById(R.id.start_button);
@@ -40,14 +41,46 @@ public class MainActivity extends AppCompatActivity{
 					startBool = true;
 
 					// Get GPS Position
-					initGps.getGpsPosition(MainActivity.this, MainActivity.super.getParent());
+					getGpsPosition();
 					// Start Services
 					onStartService(v);
+
 				} else {
 					Toast.makeText(MainActivity.this, "Already Started", Toast.LENGTH_SHORT).show();
 				}
 			}
 		});
+	}
+
+	private void getGpsPosition() {
+		LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+
+		LocationListener locationListener = new LocationListener() {
+
+			public void onLocationChanged(Location location) {
+			}
+
+			public void onStatusChanged(String provider, int status, Bundle extras) {
+			}
+
+			public void onProviderEnabled(String provider) {
+			}
+
+			public void onProviderDisabled(String provider) {
+			}
+		};
+		if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+			ActivityCompat.requestPermissions( MainActivity.this, new String[] {  android.Manifest.permission.ACCESS_COARSE_LOCATION  },
+					MY_PERMISSION_ACCESS_COURSE_LOCATION);
+		}
+
+		locationManager.requestLocationUpdates(locationManager.GPS_PROVIDER, 2000, 1, locationListener);
+		Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+
+		double latitude = location.getLatitude();
+		double longitude = location.getLongitude();
+		String msg = String.valueOf(latitude) + " - " + String.valueOf(longitude);
+		Log.d("GPS", msg);
 	}
 
 

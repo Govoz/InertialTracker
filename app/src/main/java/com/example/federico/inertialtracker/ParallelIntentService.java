@@ -61,7 +61,8 @@ public abstract class ParallelIntentService extends Service {
 		}
 
 		public void run() {
-			onHandleIntent(intent);
+			for(int i=0 ; i < 10; i++)
+				onHandleIntent(intent);
 		}
 
 		private final Intent intent;
