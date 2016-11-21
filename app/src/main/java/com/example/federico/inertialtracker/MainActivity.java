@@ -16,6 +16,20 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.Serializable;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+
 public class MainActivity extends AppCompatActivity {
 
 	//startBool is used to implement singleton design pattern.
@@ -44,6 +58,7 @@ public class MainActivity extends AppCompatActivity {
 					getGpsPosition();
 					// Start Services
 					onStartService(v);
+
 
 				} else {
 					Toast.makeText(MainActivity.this, "Already Started", Toast.LENGTH_SHORT).show();
@@ -91,6 +106,31 @@ public class MainActivity extends AppCompatActivity {
 		Intent checkSendStart = new Intent(this, checkSend.class);
 
 		startService(logDataStart);
-		startService(checkSendStart);
+	//	startService(checkSendStart);
 	}
+
+	/*
+	public FileOutputStream createFile(){
+		String FILENAME = "logFile";
+		try {
+			FileOutputStream fos = openFileOutput(FILENAME, Context.MODE_PRIVATE);
+			return fos;
+		//	fos.write(string.getBytes());
+		//	fos.close();
+
+			//-----READ-------
+
+			FileInputStream fin = openFileInput(FILENAME);
+			InputStreamReader inputStreamReader = new InputStreamReader(fin);
+			BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+
+			StringBuilder sb = new StringBuilder();
+			String line;
+			while ((line = bufferedReader.readLine()) != null) {
+				sb.append(line);
+			}
+
+			fin.close();
+*/
+
 }
