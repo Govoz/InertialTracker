@@ -1,0 +1,23 @@
+/*
+	public FileOutputStream createFile(){
+		String FILENAME = "logFile";
+		try {
+			FileOutputStream fos = openFileOutput(FILENAME, Context.MODE_PRIVATE);
+
+		//	fos.write(string.getBytes());
+		//	fos.close();
+
+			//-----READ-------
+
+			FileInputStream fin = openFileInput(FILENAME);
+			InputStreamReader inputStreamReader = new InputStreamReader(fin);
+			BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+
+			StringBuilder sb = new StringBuilder();
+			String line;
+			while ((line = bufferedReader.readLine()) != null) {
+				sb.append(line);
+			}
+
+			fin.close();
+*/

@@ -31,6 +31,7 @@ import static java.lang.Enum.valueOf;
 public class logData extends ParallelIntentService implements SensorEventListener {
 
 	private static final String TAG = logData.class.getSimpleName();
+
 	long last_timestampACC = 0;
 	long last_timestampMAGN = 0;
 	long last_timestampGIR = 0;
@@ -39,9 +40,9 @@ public class logData extends ParallelIntentService implements SensorEventListene
 
 	private static final double FREQUENCY = 2e+9;
 
-	List<Sensor> sensorList;
-	String FILENAME = "logFile";
+	writeLogFile wlog = new writeLogFile();
 
+	List<Sensor> sensorList;
 
 	public logData() {
 		// TAG is the name of process
@@ -83,88 +84,92 @@ public class logData extends ParallelIntentService implements SensorEventListene
 	@Override
 	public void onSensorChanged(SensorEvent event) {
 
-		try {
-			FileOutputStream fos = openFileOutput(FILENAME, Context.MODE_APPEND);
+		String msg = "";
 
+		if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
 
-			if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+			long current_timestamp = event.timestamp;
+			float xVal = event.values[0];
+			float yVal = event.values[1];
+			float zVal = event.values[2];
 
-				long current_timestamp = event.timestamp;
-				float xVal = event.values[0];
-				float yVal = event.values[1];
-				float zVal = event.values[2];
+			if (checkFrequency(current_timestamp, last_timestampACC)) {
+				last_timestampACC = current_timestamp;
 
-				if (checkFrequency(current_timestamp, last_timestampACC)) {
-					last_timestampACC = current_timestamp;
+				msg = current_timestamp + " - " + "ACC" + " - " + xVal + " - " + yVal + " - " + zVal + "\n";
 
-					//siste
-					String msg = current_timestamp + " - " + "ACC" + " - " + xVal + " - " + yVal + " - " + zVal + "\n";
-					fos.write(msg.getBytes());
-					Log.d("MSG", msg);
-				}
+				Log.d("ACC", msg);
 			}
-			if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
-
-				long current_timestamp = event.timestamp;
-				float xVal = event.values[0];
-				float yVal = event.values[1];
-				float zVal = event.values[2];
-
-				double magnetic_strength_field = Math.sqrt(Math.pow(xVal, 2) + Math.pow(yVal, 2) + Math.pow(zVal, 2));
-				double direction = (Math.atan2(xVal, yVal));
-				if (direction < 0)
-					direction += 2 * Math.PI;
-				double directionDegree = direction * (180 / Math.PI);
-
-				if (checkFrequency(current_timestamp, last_timestampMAGN)) {
-					last_timestampMAGN = current_timestamp;
-					//Log.d("MAGNETIC FIELD", magnetic_strength_field + " - " + directionDegree);
-				}
-			}
-
-			//using a magnetometer instead of using a gyroscope.
-			if (event.sensor.getType() == Sensor.TYPE_GEOMAGNETIC_ROTATION_VECTOR) {
-
-				long current_timestamp = event.timestamp;
-				float xVal = event.values[0];
-				float yVal = event.values[1];
-				float zVal = event.values[2];
-
-				if (checkFrequency(current_timestamp, last_timestampGIR)) {
-					last_timestampGIR = current_timestamp;
-					//Log.d("GYROSCOPE", xVal + " - " + yVal + " - " + zVal);
-				}
-			}
-
-			if (event.sensor.getType() == Sensor.TYPE_PRESSURE) {
-				long current_timestamp = event.timestamp;
-				float val = event.values[0];
-
-				if (checkFrequency(current_timestamp, last_timestampPRESS)) {
-					last_timestampPRESS = current_timestamp;
-					//Log.d("PRESSURE", String.valueOf(val));
-				}
-			}
-
-			if (event.sensor.getType() == Sensor.TYPE_ROTATION_VECTOR) {
-				long current_timestamp = event.timestamp;
-				float xVal = event.values[0];
-				float yVal = event.values[1];
-				float zVal = event.values[2];
-
-				if (checkFrequency(current_timestamp, last_timestampPRESS)) {
-					last_timestampROT = current_timestamp;
-					//Log.d("ROTATION", xVal + " - " + yVal + " " + zVal);
-				}
-			}
-
-			//scrivere il msg direttamente qua. Fare funzione che da getType ti da la stringa del sensore.
-			fos.close();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
 		}
+
+		if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
+
+			long current_timestamp = event.timestamp;
+			float xVal = event.values[0];
+			float yVal = event.values[1];
+			float zVal = event.values[2];
+
+			double magnetic_strength_field = Math.sqrt(Math.pow(xVal, 2) + Math.pow(yVal, 2) + Math.pow(zVal, 2));
+			double direction = (Math.atan2(xVal, yVal));
+			if (direction < 0)
+				direction += 2 * Math.PI;
+			double directionDegree = direction * (180 / Math.PI);
+
+			if (checkFrequency(current_timestamp, last_timestampMAGN)) {
+				last_timestampMAGN = current_timestamp;
+
+				msg = current_timestamp + " - " + "MAGNETIC_FIELD" + " - " + magnetic_strength_field + " - " + directionDegree +"\n";
+
+				Log.d("MAGNETIC FIELD", msg);
+			}
+		}
+
+		//using a magnetometer instead of using a gyroscope.
+		if (event.sensor.getType() == Sensor.TYPE_GEOMAGNETIC_ROTATION_VECTOR) {
+
+			long current_timestamp = event.timestamp;
+			float xVal = event.values[0];
+			float yVal = event.values[1];
+			float zVal = event.values[2];
+
+			if (checkFrequency(current_timestamp, last_timestampGIR)) {
+				last_timestampGIR = current_timestamp;
+
+				msg = current_timestamp + " - " + "GEO_ROT_VECT" + " - " + xVal + " - " + yVal + " - " + zVal + "\n";
+
+				Log.d("GEO_ROT_VECT", msg);
+			}
+		}
+
+		if (event.sensor.getType() == Sensor.TYPE_PRESSURE) {
+			long current_timestamp = event.timestamp;
+			float val = event.values[0];
+
+			if (checkFrequency(current_timestamp, last_timestampPRESS)) {
+				last_timestampPRESS = current_timestamp;
+
+				msg = current_timestamp + " - " + "PRESSURE" + " - " + val + "\n";
+
+				Log.d("PRESSURE", msg);
+			}
+		}
+
+		if (event.sensor.getType() == Sensor.TYPE_ROTATION_VECTOR) {
+			long current_timestamp = event.timestamp;
+			float xVal = event.values[0];
+			float yVal = event.values[1];
+			float zVal = event.values[2];
+
+			if (checkFrequency(current_timestamp, last_timestampPRESS)) {
+				last_timestampROT = current_timestamp;
+
+				msg = current_timestamp + " - " + "ROT_VECT" + " - " + xVal + " - " + yVal + " - " + zVal + "\n";
+
+				Log.d("ROT_VECT", msg);
+			}
+		}
+		wlog.write(this, MainActivity.FILENAME, msg, Context.MODE_APPEND);
+
 	}
 
 	@Override

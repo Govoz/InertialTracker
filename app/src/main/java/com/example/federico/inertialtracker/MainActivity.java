@@ -8,7 +8,6 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -16,24 +15,12 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.Serializable;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-
 public class MainActivity extends AppCompatActivity {
 
 	//startBool is used to implement singleton design pattern.
 	boolean startBool = false;
+	writeLogFile wlog = new writeLogFile();
+	public static final String FILENAME = "fileLog";
 
 	static final int MY_PERMISSION_ACCESS_COURSE_LOCATION = 11;
 
@@ -56,9 +43,9 @@ public class MainActivity extends AppCompatActivity {
 
 					// Get GPS Position
 					getGpsPosition();
+
 					// Start Services
 					onStartService(v);
-
 
 				} else {
 					Toast.makeText(MainActivity.this, "Already Started", Toast.LENGTH_SHORT).show();
@@ -84,6 +71,7 @@ public class MainActivity extends AppCompatActivity {
 			public void onProviderDisabled(String provider) {
 			}
 		};
+
 		if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 			ActivityCompat.requestPermissions( MainActivity.this, new String[] {  android.Manifest.permission.ACCESS_COARSE_LOCATION  },
 					MY_PERMISSION_ACCESS_COURSE_LOCATION);
@@ -94,8 +82,14 @@ public class MainActivity extends AppCompatActivity {
 
 		double latitude = location.getLatitude();
 		double longitude = location.getLongitude();
-		String msg = String.valueOf(latitude) + " - " + String.valueOf(longitude);
-		Log.d("GPS", msg);
+		long timestamp = location.getTime();
+
+		String msg = String.valueOf(timestamp) + "-" + String.valueOf(latitude) + " - " + String.valueOf(longitude) + "/n";
+
+		Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+
+		//Write position in the file
+		wlog.write(MainActivity.this, FILENAME, msg, Context.MODE_PRIVATE);
 	}
 
 
@@ -106,31 +100,6 @@ public class MainActivity extends AppCompatActivity {
 		Intent checkSendStart = new Intent(this, checkSend.class);
 
 		startService(logDataStart);
-	//	startService(checkSendStart);
+		startService(checkSendStart);
 	}
-
-	/*
-	public FileOutputStream createFile(){
-		String FILENAME = "logFile";
-		try {
-			FileOutputStream fos = openFileOutput(FILENAME, Context.MODE_PRIVATE);
-			return fos;
-		//	fos.write(string.getBytes());
-		//	fos.close();
-
-			//-----READ-------
-
-			FileInputStream fin = openFileInput(FILENAME);
-			InputStreamReader inputStreamReader = new InputStreamReader(fin);
-			BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-
-			StringBuilder sb = new StringBuilder();
-			String line;
-			while ((line = bufferedReader.readLine()) != null) {
-				sb.append(line);
-			}
-
-			fin.close();
-*/
-
 }
