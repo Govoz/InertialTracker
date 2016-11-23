@@ -13,6 +13,11 @@ import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.List;
 
 /**
@@ -34,7 +39,7 @@ public class checkSend extends ParallelIntentService {
 		Log.d(TAG, "onHandleIntent(Intent); Started, thread id: " + Thread.currentThread().getId());
 		try {
 
-			// se sono connesso invio i dati
+			// Controllo se sono connesso
 			if(checkConnection()){
 				sendData();
 			}
@@ -51,9 +56,10 @@ public class checkSend extends ParallelIntentService {
 		ConnectivityManager connectManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
 		NetworkInfo activeNetwork = connectManager.getActiveNetworkInfo();
 
-		// sono connesso
+		// esiste una network di default
 		if(activeNetwork != null){
 			if(activeNetwork.getType() == ConnectivityManager.TYPE_WIFI){
+				// controllo se sono connesso
 				if(activeNetwork.isConnected()){
 					WifiManager wm = (WifiManager) getSystemService(Context.WIFI_SERVICE);
 					WifiInfo networkInfo = wm.getConnectionInfo();
@@ -64,7 +70,7 @@ public class checkSend extends ParallelIntentService {
 				return true;
 			}
 		}
-		else {
+		else { //activeNetwork == null
 			// cerco una rete a cui connettermi
 			ScanResult wifiNetwork = searchFreeWifi();
 
@@ -85,7 +91,7 @@ public class checkSend extends ParallelIntentService {
 		return false;
 	}
 
-	// provo a connettermi a wifiNetwork
+	// Provo a connettermi a wifiNetwork (Open Wifi)
 	private boolean connectToWifi(ScanResult wifiNetwork) {
 		WifiConfiguration wc = new WifiConfiguration();
 		String networkSSID = wifiNetwork.SSID;
@@ -101,13 +107,13 @@ public class checkSend extends ParallelIntentService {
 	}
 
 
-	// Function that search Free Wifi Connection to connect it.
+	// Cerco la rete Open con massimo power RSSI
 	private ScanResult searchFreeWifi() {
 		WifiManager wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
 
 		List <ScanResult> listScanResult = wifiManager.getScanResults();
 
-		int maxPoverRSSI = 0;
+		int maxPowerRSSI = 0;
 		ScanResult wifiToConnect = null;
 
 		for (ScanResult result : listScanResult){
@@ -118,9 +124,9 @@ public class checkSend extends ParallelIntentService {
 					capability.toUpperCase().contains("WPA"))){
 
 				//Search WiFi with max RSSI
-				if(result.level > maxPoverRSSI){
+				if(result.level > maxPowerRSSI){
 					wifiToConnect = result;
-					maxPoverRSSI = result.level;
+					maxPowerRSSI = result.level;
 				}
 			}
 		}
@@ -152,9 +158,7 @@ public class checkSend extends ParallelIntentService {
 	}
 
 	public void sendData(){
-		//apro il file
-		//connetto al server
-		//invio
+
 	}
 
 }

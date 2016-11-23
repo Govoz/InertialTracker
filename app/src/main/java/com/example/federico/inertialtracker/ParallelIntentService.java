@@ -90,7 +90,8 @@ public abstract class ParallelIntentService extends Service {
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		onStart(intent, startId);
-		return mRedelivery ? START_REDELIVER_INTENT : START_NOT_STICKY;
+		//return mRedelivery ? START_REDELIVER_INTENT : START_NOT_STICKY;
+		return START_STICKY;
 	}
 
 	@Override
