@@ -38,6 +38,8 @@ public class logData extends ParallelIntentService implements SensorEventListene
 	long last_timestampPRESS = 0;
 	long last_timestampROT = 0;
 
+	String typeSensor = "";
+
 	private static final double FREQUENCY = 2e+9;
 
 	writeLogFile wlog = new writeLogFile();
@@ -97,8 +99,7 @@ public class logData extends ParallelIntentService implements SensorEventListene
 				last_timestampACC = current_timestamp;
 
 				msg = current_timestamp + " - " + "ACC" + " - " + xVal + " - " + yVal + " - " + zVal + "\n";
-
-				Log.d("ACC", msg);
+				typeSensor = "ACC";
 			}
 		}
 
@@ -120,7 +121,7 @@ public class logData extends ParallelIntentService implements SensorEventListene
 
 				msg = current_timestamp + " - " + "MAGNETIC_FIELD" + " - " + magnetic_strength_field + " - " + directionDegree +"\n";
 
-				Log.d("MAGNETIC FIELD", msg);
+				typeSensor = "MAGNETIC_FIELD";
 			}
 		}
 
@@ -137,7 +138,7 @@ public class logData extends ParallelIntentService implements SensorEventListene
 
 				msg = current_timestamp + " - " + "GEO_ROT_VECT" + " - " + xVal + " - " + yVal + " - " + zVal + "\n";
 
-				Log.d("GEO_ROT_VECT", msg);
+				typeSensor = "GEO_ROT_VECT";
 			}
 		}
 
@@ -150,7 +151,7 @@ public class logData extends ParallelIntentService implements SensorEventListene
 
 				msg = current_timestamp + " - " + "PRESSURE" + " - " + val + "\n";
 
-				Log.d("PRESSURE", msg);
+				typeSensor = "PRESSURE";
 			}
 		}
 
@@ -165,11 +166,12 @@ public class logData extends ParallelIntentService implements SensorEventListene
 
 				msg = current_timestamp + " - " + "ROT_VECT" + " - " + xVal + " - " + yVal + " - " + zVal + "\n";
 
-				Log.d("ROT_VECT", msg);
+				typeSensor = "ROT_VECT";
 			}
 		}
 		wlog.write(this, MainActivity.FILENAME, msg, Context.MODE_APPEND);
 
+		//Log.d(typeSensor , msg);
 	}
 
 	@Override

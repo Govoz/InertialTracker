@@ -16,8 +16,12 @@ import android.util.Log;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.List;
 
 /**
@@ -41,8 +45,11 @@ public class checkSend extends ParallelIntentService {
 
 			// Controllo se sono connesso
 			if(checkConnection()){
-				sendData();
+				Log.d("SEND", "SI");
+				//sendData();
 			}
+			else
+				Log.d("SEND", "NO");
 
 			Thread.sleep(1000);
 		} catch (InterruptedException e) {
@@ -63,9 +70,8 @@ public class checkSend extends ParallelIntentService {
 				if(activeNetwork.isConnected()){
 					WifiManager wm = (WifiManager) getSystemService(Context.WIFI_SERVICE);
 					WifiInfo networkInfo = wm.getConnectionInfo();
-					if(networkInfo != null){
-						writeWifiNetworkLog(networkInfo);
-					}
+
+					writeWifiNetworkLog(networkInfo);
 				}
 				return true;
 			}
@@ -74,17 +80,19 @@ public class checkSend extends ParallelIntentService {
 			// cerco una rete a cui connettermi
 			ScanResult wifiNetwork = searchFreeWifi();
 
-			// mi connetto
-			connectToWifi(wifiNetwork);
+			if(wifiNetwork!= null) {
+				// mi connetto
+				connectToWifi(wifiNetwork);
 
-			//ricontrollo la networkActive
-			activeNetwork = connectManager.getActiveNetworkInfo();
+				//ricontrollo la networkActive
+				activeNetwork = connectManager.getActiveNetworkInfo();
 
-			// se sono riuscito a collegarmi ad una rete
-			if(activeNetwork != null){
-				if(activeNetwork.getType() == ConnectivityManager.TYPE_WIFI){
-					writeWifiNetworkLog(wifiNetwork);
-					return true;
+				// se sono riuscito a collegarmi ad una rete
+				if (activeNetwork != null) {
+					if (activeNetwork.getType() == ConnectivityManager.TYPE_WIFI) {
+						writeWifiNetworkLog(wifiNetwork);
+						return true;
+					}
 				}
 			}
 		}
@@ -130,35 +138,81 @@ public class checkSend extends ParallelIntentService {
 				}
 			}
 		}
+
 		return wifiToConnect;
 	}
 
 	private void writeWifiNetworkLog(ScanResult wifiNetwork) {
-		writeLogFile wlog = new writeLogFile();
+		if(wifiNetwork != null) {
+			writeLogFile wlog = new writeLogFile();
 
-		String msg = "WIFI - " +
-				"TimeStamp : " + wifiNetwork.timestamp + " /n" +
-				"BSSID : " + wifiNetwork.BSSID + " /n" +
-				"SSID : " + wifiNetwork.SSID + " /n" +
-				"RSSI : " + wifiNetwork.level + " /n";
+			StringBuilder log = new StringBuilder(5);
 
-		wlog.write(this, MainActivity.FILENAME, msg, Context.MODE_APPEND);
+			log.append("WIFI - ");
+			log.append("TimeStamp : " + System.currentTimeMillis() + " /n");
+
+			if(wifiNetwork.BSSID != null) {
+				log.append("BSSID : " + wifiNetwork.BSSID + " /n");
+			}
+			if(wifiNetwork.SSID != null) {
+				log.append("SSID : " + wifiNetwork.SSID + " /n");
+			}
+			log.append("RSSI : " + wifiNetwork.level + " /n");
+
+			wlog.write(this, MainActivity.FILENAME, log.toString(), Context.MODE_APPEND);
+		}
 	}
 
 	private void writeWifiNetworkLog(WifiInfo wifiNetwork) {
-		writeLogFile wlog = new writeLogFile();
+		if(wifiNetwork != null) {
+			writeLogFile wlog = new writeLogFile();
 
-		String msg = "WIFI - " +
-				"TimeStamp : " + System.currentTimeMillis() + " /n" +
-				"BSSID : " + wifiNetwork.getBSSID() + " /n" +
-				"SSID : " + wifiNetwork.getSSID() + " /n" +
-				"RSSI : " + wifiNetwork.getRssi() + " /n";
+			StringBuilder log = new StringBuilder(5);
 
-		wlog.write(this, MainActivity.FILENAME, msg, Context.MODE_APPEND);
+			log.append("WIFI - ");
+			log.append("TimeStamp : " + System.currentTimeMillis() + " /n");
+
+			if(wifiNetwork.getBSSID() != null) {
+				log.append("BSSID : " + wifiNetwork.getBSSID() + " /n");
+			}
+			if(wifiNetwork.getSSID() != null) {
+				log.append("SSID : " + wifiNetwork.getSSID() + " /n");
+			}
+			log.append("RSSI : " + wifiNetwork.getRssi() + " /n");
+
+			wlog.write(this, MainActivity.FILENAME, log.toString(), Context.MODE_APPEND);
+		}
 	}
 
-	public void sendData(){
+	private void sendData() {
+		Log.d("CONNECTION" , "entry");
+		try {
+			String message = URLEncoder.encode("prova prova", "UTF-8");
 
+			//mi connetto al server
+			String urlServer = "http://localhost:80/inertialTracker/index.php";
+
+			URL url = new URL(urlServer);
+			HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+
+			Log.d("CONNECTION1", "AAA");
+
+			urlConnection.setDoOutput(true);
+			urlConnection.setRequestMethod("POST");
+			urlConnection.setChunkedStreamingMode(0);
+
+			OutputStreamWriter writer = new OutputStreamWriter(urlConnection.getOutputStream());
+			writer.write("message=" + message);
+
+			writer.close();
+
+			Log.d("CONNECTION2", String.valueOf(urlConnection.getResponseCode()));
+
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 }

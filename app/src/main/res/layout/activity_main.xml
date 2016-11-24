@@ -28,4 +28,13 @@
         android:layout_marginTop="34dp"
         android:id="@+id/viewLog"/>
 
+    <Button
+        android:text="SendData"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="21dp"
+        android:id="@+id/sendData"
+        android:layout_below="@+id/viewLog"
+        android:layout_alignStart="@+id/viewLog"/>
+
 </RelativeLayout>

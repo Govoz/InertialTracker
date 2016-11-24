@@ -20,6 +20,11 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLEncoder;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -51,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
 					getGpsPosition();
 
 					// Start Services
-					onStartService(v);
+					onStartService();
 
 				} else {
 					Toast.makeText(MainActivity.this, "Already Started", Toast.LENGTH_SHORT).show();
@@ -59,14 +64,25 @@ public class MainActivity extends AppCompatActivity {
 			}
 		});
 
-		final Button view = (Button) findViewById(R.id.viewLog);
-		view.setOnClickListener(new View.OnClickListener() {
+
+		//--------------TEST BUTTON --------------------------
+		final Button viewData = (Button) findViewById(R.id.viewLog);
+		viewData.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				readFile();
 			}
 		});
+
+		final Button sendButton = (Button) findViewById(R.id.sendData);
+		sendButton.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				//sendFile();
+			}
+		});
 	}
+
 
 	private void readFile() {
 		FileInputStream fin = null;
@@ -116,12 +132,17 @@ public class MainActivity extends AppCompatActivity {
 		};
 
 		if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-			ActivityCompat.requestPermissions( MainActivity.this, new String[] {  android.Manifest.permission.ACCESS_COARSE_LOCATION  },
+			ActivityCompat.requestPermissions(MainActivity.this, new String[]{android.Manifest.permission.ACCESS_COARSE_LOCATION},
 					MY_PERMISSION_ACCESS_COURSE_LOCATION);
 		}
 
 		locationManager.requestLocationUpdates(locationManager.GPS_PROVIDER, 2000, 1, locationListener);
 		Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+
+		if (location == null){
+			locationManager.requestSingleUpdate(LocationManager.GPS_PROVIDER, locationListener, null);
+			location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+		}
 
 		double latitude = location.getLatitude();
 		double longitude = location.getLongitude();
@@ -136,7 +157,7 @@ public class MainActivity extends AppCompatActivity {
 	}
 
 
-	public void onStartService(View v) {
+	public void onStartService() {
 		Log.d(TAG, "onStartService(View);");
 
 		Intent logDataStart = new Intent(this, logData.class);
