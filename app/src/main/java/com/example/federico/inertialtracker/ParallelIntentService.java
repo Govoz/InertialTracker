@@ -9,17 +9,22 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import android.app.Service;
 import android.content.Intent;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
+import android.os.Message;
 
 /*
 Source:
 https://github.com/schoentoon/ParallelIntentService
+
+Service extends ParallelIntentService (extends Service) and execute onHandleIntent().
  */
 
 public abstract class ParallelIntentService extends Service {
-	private static final int CORE_POOL_SIZE = 5;       // the number of threads to keep in the pool
-	private static final int MAXIMUM_POOL_SIZE = 128;  // the max number of threads to allow in the pool
-	private static final int KEEP_ALIVE = 1;           //  when the number of threads is > than the core, this is the maximum time that excess idle threads will wait for new tasks before terminating.
+	private static final int CORE_POOL_SIZE = 2;       // the number of threads to keep in the pool
+	private static final int MAXIMUM_POOL_SIZE = 2;  // the max number of threads to allow in the pool
+	private static final int KEEP_ALIVE = 2;           //  when the number of threads is > than the core, this is the maximum time that excess idle threads will wait for new tasks before terminating.
 
 
 	//Create new thread onDemand
@@ -37,6 +42,7 @@ public abstract class ParallelIntentService extends Service {
 	private final ThreadPoolExecutor ThreadPoolExecutor = new ParallelThreadPoolExecutor(CORE_POOL_SIZE,
 			MAXIMUM_POOL_SIZE, KEEP_ALIVE, TimeUnit.SECONDS, sPoolWorkQueue, sThreadFactory);
 
+	//----------------------------------------------------------------------
 	private class ParallelThreadPoolExecutor extends ThreadPoolExecutor {
 
 		public ParallelThreadPoolExecutor(int corePoolSize, int maximumPoolSize, long keepAliveTime,
@@ -54,19 +60,22 @@ public abstract class ParallelIntentService extends Service {
 				tasksLeft(active_count);
 		}
 	}
-
+	//----------------------------------------------------------------------
+	//START TASK
 	public class Task implements Runnable {
 		public Task(final Intent intent) {
 			this.intent = intent;
 		}
 
 		public void run() {
-			for(;;)
+			for(;;) {
 				onHandleIntent(intent);
+			}
 		}
 
 		private final Intent intent;
 	}
+	//END TASK
 
 	private boolean mRedelivery;
 

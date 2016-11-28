@@ -31,7 +31,8 @@ public class MainActivity extends AppCompatActivity {
 	//startBool is used to implement singleton design pattern.
 	boolean startBool = false;
 	writeLogFile wlog = new writeLogFile();
-	public static final String FILENAME = "fileLog";
+
+	public static final String FILENAME = "fileLog.txt";
 
 	static final int MY_PERMISSION_ACCESS_COURSE_LOCATION = 11;
 

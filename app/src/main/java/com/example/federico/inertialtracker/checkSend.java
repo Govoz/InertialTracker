@@ -1,6 +1,5 @@
 package com.example.federico.inertialtracker;
 
-import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
@@ -9,20 +8,15 @@ import android.net.wifi.ScanResult;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
-import android.os.IBinder;
-import android.support.annotation.Nullable;
+import android.os.Looper;
 import android.util.Log;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.UnsupportedEncodingException;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLEncoder;
+import java.io.FileNotFoundException;
 import java.util.List;
+import com.loopj.android.http.*;
+import cz.msebera.android.httpclient.Header;
+
 
 /**
  * Created by Federico on 15-Nov-16.
@@ -149,15 +143,15 @@ public class checkSend extends ParallelIntentService {
 			StringBuilder log = new StringBuilder(5);
 
 			log.append("WIFI - ");
-			log.append("TimeStamp : " + System.currentTimeMillis() + " /n");
+			log.append("TimeStamp : ").append(System.currentTimeMillis()).append(" /n");
 
 			if(wifiNetwork.BSSID != null) {
-				log.append("BSSID : " + wifiNetwork.BSSID + " /n");
+				log.append("BSSID : ").append(wifiNetwork.BSSID).append(" /n");
 			}
 			if(wifiNetwork.SSID != null) {
-				log.append("SSID : " + wifiNetwork.SSID + " /n");
+				log.append("SSID : ").append(wifiNetwork.SSID).append(" /n");
 			}
-			log.append("RSSI : " + wifiNetwork.level + " /n");
+			log.append("RSSI : ").append(wifiNetwork.level).append(" /n");
 
 			wlog.write(this, MainActivity.FILENAME, log.toString(), Context.MODE_APPEND);
 		}
@@ -170,49 +164,53 @@ public class checkSend extends ParallelIntentService {
 			StringBuilder log = new StringBuilder(5);
 
 			log.append("WIFI - ");
-			log.append("TimeStamp : " + System.currentTimeMillis() + " /n");
+			log.append("TimeStamp : ").append(System.currentTimeMillis()).append(" /n");
 
 			if(wifiNetwork.getBSSID() != null) {
-				log.append("BSSID : " + wifiNetwork.getBSSID() + " /n");
+				log.append("BSSID : ").append(wifiNetwork.getBSSID()).append(" /n");
 			}
 			if(wifiNetwork.getSSID() != null) {
-				log.append("SSID : " + wifiNetwork.getSSID() + " /n");
+				log.append("SSID : ").append(wifiNetwork.getSSID()).append(" /n");
 			}
-			log.append("RSSI : " + wifiNetwork.getRssi() + " /n");
+			log.append("RSSI : ").append(wifiNetwork.getRssi()).append(" /n");
 
 			wlog.write(this, MainActivity.FILENAME, log.toString(), Context.MODE_APPEND);
 		}
 	}
 
-	private void sendData() {
-		Log.d("CONNECTION" , "entry");
-		try {
-			String message = URLEncoder.encode("prova prova", "UTF-8");
+	HttpRequest httpRequest = new HttpRequest();
 
-			//mi connetto al server
-			String urlServer = "http://localhost:80/inertialTracker/index.php";
+	public void sendData() {
 
-			URL url = new URL(urlServer);
-			HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+		File file = new File(getApplicationContext().getFilesDir(), MainActivity.FILENAME);
+		if (file != null) {
+			RequestParams params = new RequestParams();
+			try {
+				params.put("Device", "InertialTracker");
+				params.put("file", file, "");
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			}
 
-			Log.d("CONNECTION1", "AAA");
+			FileAsyncHttpResponseHandler handler = new FileAsyncHttpResponseHandler(this) {
 
-			urlConnection.setDoOutput(true);
-			urlConnection.setRequestMethod("POST");
-			urlConnection.setChunkedStreamingMode(0);
+				@Override
+				public void onFailure(int statusCode, cz.msebera.android.httpclient.Header[] headers, Throwable throwable, File file) {
+					Log.d("sendData", "Server Error.");
+				}
 
-			OutputStreamWriter writer = new OutputStreamWriter(urlConnection.getOutputStream());
-			writer.write("message=" + message);
+				@Override
+				public void onSuccess(int statusCode, cz.msebera.android.httpclient.Header[] headers, File file) {
+					Log.d("sendData", "Server Success.");
+				}
+			};
 
-			writer.close();
+			//handler.setUseSynchronousMode(true);
 
-			Log.d("CONNECTION2", String.valueOf(urlConnection.getResponseCode()));
-
-		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
+			httpRequest.post(params, handler);
 		}
+		else
+			Log.d("sendData","File NULL");
 	}
 
 }
