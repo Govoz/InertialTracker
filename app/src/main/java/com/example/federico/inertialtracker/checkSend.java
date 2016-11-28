@@ -27,6 +27,7 @@ import cz.msebera.android.httpclient.Header;
 public class checkSend extends ParallelIntentService {
 
 	private static final String TAG = checkSend.class.getSimpleName();
+	static String URL = "http://192.168.1.10:80";
 
 	public checkSend() {
 		// TAG is the name of process
@@ -40,7 +41,7 @@ public class checkSend extends ParallelIntentService {
 			// Controllo se sono connesso
 			if(checkConnection()){
 				Log.d("SEND", "SI");
-				//sendData();
+				sendData();
 			}
 			else
 				Log.d("SEND", "NO");
@@ -180,37 +181,22 @@ public class checkSend extends ParallelIntentService {
 
 	HttpRequest httpRequest = new HttpRequest();
 
-	public void sendData() {
+	public void sendData(){
+		HttpRequest w = new HttpRequest();
+		RequestParams data = new RequestParams();
+		data.put("Key", "Value");
 
-		File file = new File(getApplicationContext().getFilesDir(), MainActivity.FILENAME);
-		if (file != null) {
-			RequestParams params = new RequestParams();
-			try {
-				params.put("Device", "InertialTracker");
-				params.put("file", file, "");
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
+		w.post(URL, data, new AsyncHttpResponseHandler() {
+			@Override
+			public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+				Log.d("Send", "Invio Eseguito");
 			}
 
-			FileAsyncHttpResponseHandler handler = new FileAsyncHttpResponseHandler(this) {
-
-				@Override
-				public void onFailure(int statusCode, cz.msebera.android.httpclient.Header[] headers, Throwable throwable, File file) {
-					Log.d("sendData", "Server Error.");
-				}
-
-				@Override
-				public void onSuccess(int statusCode, cz.msebera.android.httpclient.Header[] headers, File file) {
-					Log.d("sendData", "Server Success.");
-				}
-			};
-
-			//handler.setUseSynchronousMode(true);
-
-			httpRequest.post(params, handler);
-		}
-		else
-			Log.d("sendData","File NULL");
+			@Override
+			public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+				Log.d("Send", "Invio Fallito");
+			}
+		});
 	}
 
 }
