@@ -1,17 +1,17 @@
 package com.example.federico.inertialtracker;
 
-import android.content.Context;
-import android.os.Looper;
 
+import android.os.Looper;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
-import com.loopj.android.http.PersistentCookieStore;
 import com.loopj.android.http.RequestParams;
 import com.loopj.android.http.SyncHttpClient;
 
 
 /**
  * Created by Federico on 24-Nov-16.
+ *
+ * http://stackoverflow.com/questions/24646635/android-loopj-async-http-crashes-after-1-4-5-update
  */
 
 public class HttpRequest {

@@ -12,19 +12,26 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.webkit.MimeTypeMap;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.loopj.android.http.AsyncHttpResponseHandler;
+import com.loopj.android.http.RequestParams;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.UnsupportedEncodingException;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLEncoder;
+import java.nio.charset.Charset;
+
+import cz.msebera.android.httpclient.Header;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -79,19 +86,20 @@ public class MainActivity extends AppCompatActivity {
 		sendButton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				//sendFile();
+				sendFile();
 			}
 		});
 	}
 
 
-	private void readFile() {
+	private String readFile() {
 		FileInputStream fin = null;
 		try {
 			fin = openFileInput(FILENAME);
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
+		assert fin != null;
 		InputStreamReader inputStreamReader = new InputStreamReader(fin);
 		BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
 
@@ -111,7 +119,9 @@ public class MainActivity extends AppCompatActivity {
 			e.printStackTrace();
 		}
 
-		Toast.makeText(this, sb.toString(), Toast.LENGTH_LONG).show();
+		//Toast.makeText(this, sb.toString(), Toast.LENGTH_LONG).show();
+
+		return sb.toString();
 	}
 
 	private void getGpsPosition() {
@@ -137,10 +147,10 @@ public class MainActivity extends AppCompatActivity {
 					MY_PERMISSION_ACCESS_COURSE_LOCATION);
 		}
 
-		locationManager.requestLocationUpdates(locationManager.GPS_PROVIDER, 2000, 1, locationListener);
+		locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 2000, 1, locationListener);
 		Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
 
-		if (location == null){
+		if (location == null) {
 			locationManager.requestSingleUpdate(LocationManager.GPS_PROVIDER, locationListener, null);
 			location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
 		}
@@ -167,4 +177,52 @@ public class MainActivity extends AppCompatActivity {
 		startService(logDataStart);
 		startService(checkSendStart);
 	}
+
+
+//Funzione che ritorna il MimeType di un file, mi serviva per capire come sto trattando il mio file. (text/plain)
+
+	public void fileType() {
+		String type = getMimeType(FILENAME);
+		Toast.makeText(this, type, Toast.LENGTH_SHORT).show();
+	}
+
+	public static String getMimeType(String url) {
+		String type = null;
+		String extension = MimeTypeMap.getFileExtensionFromUrl(url);
+		if (extension != null) {
+			type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
+		}
+		return type;
+	}
+
+	public void sendFile() {
+		//File f = new File(FILENAME);
+
+		String fileString = null;
+
+		fileString = readFile();
+
+
+		Toast.makeText(this, fileString, Toast.LENGTH_LONG).show();
+
+		HttpRequest w = new HttpRequest();
+		RequestParams params = new RequestParams();
+
+		params.put("key", "value");
+		params.put("file", fileString);
+
+		w.post(checkSend.URL, params, new AsyncHttpResponseHandler() {
+			@Override
+			public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+				Log.d("Send", "Invio Eseguito");
+			}
+
+			@Override
+			public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+				Log.d("Send", "Invio Fallito");
+			}
+		});
+
+	}
+
 }

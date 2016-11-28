@@ -171,7 +171,7 @@ public class logData extends ParallelIntentService implements SensorEventListene
 		}
 		wlog.write(this, MainActivity.FILENAME, msg, Context.MODE_APPEND);
 
-		//Log.d(typeSensor , msg);
+		Log.d(typeSensor , msg);
 	}
 
 	@Override

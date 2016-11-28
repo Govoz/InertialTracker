@@ -41,7 +41,7 @@ public class checkSend extends ParallelIntentService {
 			// Controllo se sono connesso
 			if(checkConnection()){
 				Log.d("SEND", "SI");
-				sendData();
+				//sendData();
 			}
 			else
 				Log.d("SEND", "NO");
