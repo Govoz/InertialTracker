@@ -18,18 +18,7 @@ import android.widget.Toast;
 
 import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.nio.charset.Charset;
+import java.sql.Timestamp;
 
 import cz.msebera.android.httpclient.Header;
 
@@ -37,7 +26,6 @@ public class MainActivity extends AppCompatActivity {
 
 	//startBool is used to implement singleton design pattern.
 	boolean startBool = false;
-	writeLogFile wlog = new writeLogFile();
 
 	public static final String FILENAME = "fileLog.txt";
 
@@ -78,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
 		viewData.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				readFile();
+				JsonUtils.readJsonFile();
 			}
 		});
 
@@ -91,38 +79,6 @@ public class MainActivity extends AppCompatActivity {
 		});
 	}
 
-
-	private String readFile() {
-		FileInputStream fin = null;
-		try {
-			fin = openFileInput(FILENAME);
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
-		assert fin != null;
-		InputStreamReader inputStreamReader = new InputStreamReader(fin);
-		BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-
-		StringBuilder sb = new StringBuilder();
-		String line;
-		try {
-			while ((line = bufferedReader.readLine()) != null) {
-				sb.append(line);
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-		try {
-			fin.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-		//Toast.makeText(this, sb.toString(), Toast.LENGTH_LONG).show();
-
-		return sb.toString();
-	}
 
 	private void getGpsPosition() {
 		LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
@@ -163,8 +119,8 @@ public class MainActivity extends AppCompatActivity {
 
 		Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
 
-		//Write position in the file
-		wlog.write(MainActivity.this, FILENAME, msg, Context.MODE_PRIVATE);
+		JsonUtils.addGPS(latitude, longitude);
+
 	}
 
 
@@ -196,22 +152,19 @@ public class MainActivity extends AppCompatActivity {
 	}
 
 	public void sendFile() {
-		//File f = new File(FILENAME);
 
-		String fileString = null;
-
-		fileString = readFile();
-
+		String fileString = JsonUtils.readJsonFile();
 
 		Toast.makeText(this, fileString, Toast.LENGTH_LONG).show();
 
-		HttpRequest w = new HttpRequest();
 		RequestParams params = new RequestParams();
 
-		params.put("key", "value");
-		params.put("file", fileString);
+		Timestamp timestamp = new Timestamp(System.currentTimeMillis());
 
-		w.post(checkSend.URL, params, new AsyncHttpResponseHandler() {
+		params.put("timestamp", timestamp);
+		params.put("data", fileString);
+
+		HttpRequest.post(checkSend.URL, params, new AsyncHttpResponseHandler() {
 			@Override
 			public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
 				Log.d("Send", "Invio Eseguito");

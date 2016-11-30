@@ -1,31 +1,17 @@
 package com.example.federico.inertialtracker;
 
-import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.location.Location;
-import android.location.LocationManager;
-import android.os.Handler;
-import android.support.v4.app.ActivityCompat;
 import android.util.Log;
-
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.Date;
 import java.util.List;
-
-import static android.hardware.Sensor.TYPE_LINEAR_ACCELERATION;
-import static android.webkit.ConsoleMessage.MessageLevel.LOG;
-import static java.lang.Enum.valueOf;
 
 /**
  * Created by Federico on 15-Nov-16.
+ *
  */
 
 public class logData extends ParallelIntentService implements SensorEventListener {
@@ -41,8 +27,6 @@ public class logData extends ParallelIntentService implements SensorEventListene
 	String typeSensor = "";
 
 	private static final double FREQUENCY = 2e+9;
-
-	writeLogFile wlog = new writeLogFile();
 
 	List<Sensor> sensorList;
 
@@ -86,8 +70,6 @@ public class logData extends ParallelIntentService implements SensorEventListene
 	@Override
 	public void onSensorChanged(SensorEvent event) {
 
-		String msg = "";
-
 		if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
 
 			long current_timestamp = event.timestamp;
@@ -98,8 +80,9 @@ public class logData extends ParallelIntentService implements SensorEventListene
 			if (checkFrequency(current_timestamp, last_timestampACC)) {
 				last_timestampACC = current_timestamp;
 
-				msg = current_timestamp + " - " + "ACC" + " - " + xVal + " - " + yVal + " - " + zVal + "\n";
 				typeSensor = "ACC";
+
+				JsonUtils.addValue(typeSensor,current_timestamp, xVal, yVal, zVal);
 			}
 		}
 
@@ -119,9 +102,9 @@ public class logData extends ParallelIntentService implements SensorEventListene
 			if (checkFrequency(current_timestamp, last_timestampMAGN)) {
 				last_timestampMAGN = current_timestamp;
 
-				msg = current_timestamp + " - " + "MAGNETIC_FIELD" + " - " + magnetic_strength_field + " - " + directionDegree +"\n";
-
 				typeSensor = "MAGNETIC_FIELD";
+
+				JsonUtils.addValue(typeSensor, current_timestamp, magnetic_strength_field, directionDegree, 0);
 			}
 		}
 
@@ -136,9 +119,8 @@ public class logData extends ParallelIntentService implements SensorEventListene
 			if (checkFrequency(current_timestamp, last_timestampGIR)) {
 				last_timestampGIR = current_timestamp;
 
-				msg = current_timestamp + " - " + "GEO_ROT_VECT" + " - " + xVal + " - " + yVal + " - " + zVal + "\n";
-
 				typeSensor = "GEO_ROT_VECT";
+				JsonUtils.addValue(typeSensor,current_timestamp, xVal, yVal, zVal);
 			}
 		}
 
@@ -149,9 +131,8 @@ public class logData extends ParallelIntentService implements SensorEventListene
 			if (checkFrequency(current_timestamp, last_timestampPRESS)) {
 				last_timestampPRESS = current_timestamp;
 
-				msg = current_timestamp + " - " + "PRESSURE" + " - " + val + "\n";
-
 				typeSensor = "PRESSURE";
+				JsonUtils.addValue(typeSensor,current_timestamp, val, 0, 0);
 			}
 		}
 
@@ -164,14 +145,11 @@ public class logData extends ParallelIntentService implements SensorEventListene
 			if (checkFrequency(current_timestamp, last_timestampPRESS)) {
 				last_timestampROT = current_timestamp;
 
-				msg = current_timestamp + " - " + "ROT_VECT" + " - " + xVal + " - " + yVal + " - " + zVal + "\n";
-
 				typeSensor = "ROT_VECT";
+				JsonUtils.addValue(typeSensor, current_timestamp, xVal, yVal, zVal);
 			}
 		}
-		wlog.write(this, MainActivity.FILENAME, msg, Context.MODE_APPEND);
 
-		Log.d(typeSensor , msg);
 	}
 
 	@Override
@@ -180,10 +158,7 @@ public class logData extends ParallelIntentService implements SensorEventListene
 	}
 
 	public boolean checkFrequency(long current, long last) {
-		if (current - last > FREQUENCY)
-			return true;
-		else
-			return false;
+		return current - last > FREQUENCY;
 	}
 
 	public void printListSensor(SensorManager mSensorManager) {
