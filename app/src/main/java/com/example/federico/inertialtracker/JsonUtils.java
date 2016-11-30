@@ -45,7 +45,7 @@ public class JsonUtils {
 		}
 	}
 
-	public static void addValue(String type, long timestamp, double x, double y, double z) {
+	public static void addValue(String type, long timestamp, float x, float y, float z) {
 		try {
 			JSONObject obj = new JSONObject();
 			obj.put("timestamp", timestamp);

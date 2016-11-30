@@ -42,8 +42,6 @@ public class logData extends ParallelIntentService implements SensorEventListene
 		try {
 			SensorManager mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
 
-			//printListSensor(mSensorManager);
-
 			Sensor accelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 			Sensor magnetic_field = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
 			Sensor gyroscope = mSensorManager.getDefaultSensor(Sensor.TYPE_GEOMAGNETIC_ROTATION_VECTOR);
@@ -70,28 +68,26 @@ public class logData extends ParallelIntentService implements SensorEventListene
 	@Override
 	public void onSensorChanged(SensorEvent event) {
 
-		if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+		long current_timestamp = event.timestamp;
+		float xVal = 0;
+		float yVal = 0;
+		float zVal = 0;
 
-			long current_timestamp = event.timestamp;
-			float xVal = event.values[0];
-			float yVal = event.values[1];
-			float zVal = event.values[2];
+		if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+			xVal = event.values[0];
+			yVal = event.values[1];
+			zVal = event.values[2];
 
 			if (checkFrequency(current_timestamp, last_timestampACC)) {
 				last_timestampACC = current_timestamp;
-
 				typeSensor = "ACC";
-
-				JsonUtils.addValue(typeSensor,current_timestamp, xVal, yVal, zVal);
 			}
 		}
 
 		if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
-
-			long current_timestamp = event.timestamp;
-			float xVal = event.values[0];
-			float yVal = event.values[1];
-			float zVal = event.values[2];
+			xVal = event.values[0];
+			yVal = event.values[1];
+			zVal = event.values[2];
 
 			double magnetic_strength_field = Math.sqrt(Math.pow(xVal, 2) + Math.pow(yVal, 2) + Math.pow(zVal, 2));
 			double direction = (Math.atan2(xVal, yVal));
@@ -103,53 +99,47 @@ public class logData extends ParallelIntentService implements SensorEventListene
 				last_timestampMAGN = current_timestamp;
 
 				typeSensor = "MAGNETIC_FIELD";
-
-				JsonUtils.addValue(typeSensor, current_timestamp, magnetic_strength_field, directionDegree, 0);
+				xVal = (float) magnetic_strength_field;
+				yVal = (float) directionDegree;
+				zVal = 0;
 			}
 		}
 
 		//using a magnetometer instead of using a gyroscope.
 		if (event.sensor.getType() == Sensor.TYPE_GEOMAGNETIC_ROTATION_VECTOR) {
-
-			long current_timestamp = event.timestamp;
-			float xVal = event.values[0];
-			float yVal = event.values[1];
-			float zVal = event.values[2];
+			xVal = event.values[0];
+			yVal = event.values[1];
+			zVal = event.values[2];
 
 			if (checkFrequency(current_timestamp, last_timestampGIR)) {
 				last_timestampGIR = current_timestamp;
-
 				typeSensor = "GEO_ROT_VECT";
-				JsonUtils.addValue(typeSensor,current_timestamp, xVal, yVal, zVal);
 			}
 		}
 
 		if (event.sensor.getType() == Sensor.TYPE_PRESSURE) {
-			long current_timestamp = event.timestamp;
-			float val = event.values[0];
+			xVal = event.values[0];
 
 			if (checkFrequency(current_timestamp, last_timestampPRESS)) {
 				last_timestampPRESS = current_timestamp;
-
 				typeSensor = "PRESSURE";
-				JsonUtils.addValue(typeSensor,current_timestamp, val, 0, 0);
+				yVal = 0;
+				zVal = 0;
 			}
 		}
 
 		if (event.sensor.getType() == Sensor.TYPE_ROTATION_VECTOR) {
-			long current_timestamp = event.timestamp;
-			float xVal = event.values[0];
-			float yVal = event.values[1];
-			float zVal = event.values[2];
+			xVal = event.values[0];
+			yVal = event.values[1];
+			zVal = event.values[2];
 
 			if (checkFrequency(current_timestamp, last_timestampPRESS)) {
 				last_timestampROT = current_timestamp;
-
 				typeSensor = "ROT_VECT";
-				JsonUtils.addValue(typeSensor, current_timestamp, xVal, yVal, zVal);
 			}
 		}
 
+		JsonUtils.addValue(typeSensor, current_timestamp, xVal, yVal, zVal);
 	}
 
 	@Override
