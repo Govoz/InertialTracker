@@ -153,7 +153,7 @@ public class checkSend extends ParallelIntentService {
 	}
 
 	public void sendData() {
-		String fileString = JsonUtils.readJsonFile();
+		String fileString = JsonUtils.getJsonFile().toString();
 		Timestamp timestamp = new Timestamp(System.currentTimeMillis());
 		RequestParams data = new RequestParams();
 

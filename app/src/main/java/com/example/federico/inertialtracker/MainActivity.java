@@ -11,10 +11,11 @@ import android.widget.Toast;
 public class MainActivity extends AppCompatActivity {
 
 	//startBool is used to implement singleton design pattern.
-	private boolean startBool = false;
+	private boolean active = false;
 
 	//TAG is the process name
 	private static final String TAG = MainActivity.class.getSimpleName();
+
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -26,9 +27,9 @@ public class MainActivity extends AppCompatActivity {
 		start.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				if (!startBool) {
+				if (!active) {
 					Toast.makeText(MainActivity.this, "Start", Toast.LENGTH_SHORT).show();
-					startBool = true;
+					active = true;
 
 					// Get GPS Position
 					gpsPosition.getGpsPosition(MainActivity.this);
@@ -66,9 +67,6 @@ public class MainActivity extends AppCompatActivity {
 	}
 
 
-	/*
-	* Create two intents and start the services.
-	 */
 	public void onStartService() {
 		Log.d(TAG, "onStartService(View);");
 

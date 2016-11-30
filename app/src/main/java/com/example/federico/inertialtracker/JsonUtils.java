@@ -133,8 +133,8 @@ public class JsonUtils {
 	}
 
 	public static String readJsonFile() {
-		JsonUtils.prepareJson();
-		String json = JsonUtils.getJsonFile().toString();
+		prepareJson();
+		String json = getJsonFile().toString();
 		Log.d("JSON", json);
 		return json;
 	}

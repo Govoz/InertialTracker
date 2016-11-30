@@ -9,11 +9,13 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
-import android.widget.Toast;
+import android.widget.TextView;
+
 
 
 /**
  * Created by Federico on 30-Nov-16.
+ *
  */
 
 public class gpsPosition {
@@ -59,8 +61,17 @@ public class gpsPosition {
 
 		JsonUtils.addGPS(latitude, longitude);
 
-		Toast.makeText(c, msg, Toast.LENGTH_SHORT).show();
+		setGPSView(c, latitude, longitude);
 
 		return msg;
+	}
+
+	public static void setGPSView(Context c, double latitude, double longitude){
+		Activity a = (Activity) c;
+		TextView latitudeText = (TextView) a.findViewById(R.id.latitudeGPS);
+		TextView longitudeText = (TextView) a.findViewById(R.id.longitudeGPS);
+
+		latitudeText.setText(String.valueOf(latitude));
+		longitudeText.setText(String.valueOf(longitude));
 	}
 }

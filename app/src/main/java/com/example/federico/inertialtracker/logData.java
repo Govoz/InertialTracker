@@ -43,6 +43,7 @@ public class logData extends ParallelIntentService implements SensorEventListene
 			SensorManager mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
 
 			Sensor accelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+
 			Sensor magnetic_field = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
 			Sensor gyroscope = mSensorManager.getDefaultSensor(Sensor.TYPE_GEOMAGNETIC_ROTATION_VECTOR);
 			Sensor barometer = mSensorManager.getDefaultSensor(Sensor.TYPE_PRESSURE);
@@ -68,7 +69,11 @@ public class logData extends ParallelIntentService implements SensorEventListene
 	@Override
 	public void onSensorChanged(SensorEvent event) {
 
+		Log.d("Sensor", String.valueOf(event.values[0]));
+
+
 		long current_timestamp = event.timestamp;
+
 		float xVal = 0;
 		float yVal = 0;
 		float zVal = 0;
@@ -139,7 +144,12 @@ public class logData extends ParallelIntentService implements SensorEventListene
 			}
 		}
 
+
+
+		String msg = typeSensor + " - " + String.valueOf(xVal) + " - " + String.valueOf(yVal) + " - " + String.valueOf(zVal);
+ 		Log.d("Sensor", msg);
 		JsonUtils.addValue(typeSensor, current_timestamp, xVal, yVal, zVal);
+
 	}
 
 	@Override
