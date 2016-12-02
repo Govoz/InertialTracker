@@ -1,10 +1,7 @@
 package com.example.federico.inertialtracker;
 
-import android.content.Context;
-import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
@@ -13,9 +10,6 @@ public class MainActivity extends AppCompatActivity {
 
 	//startBool is used to implement singleton design pattern.
 	private boolean active = false;
-
-	//TAG is the process name
-	private static final String TAG = MainActivity.class.getSimpleName();
 
 
 	@Override
@@ -68,10 +62,8 @@ public class MainActivity extends AppCompatActivity {
 
 	// When motionDetect() detect a motion start the services.
 	public void motionDetection() {
-
 		Toast.makeText(this, "MotionDetect attivato", Toast.LENGTH_SHORT).show();
 		motionDetect md = new motionDetect(this);
-
 	}
 
 }

@@ -144,8 +144,6 @@ public class logData extends ParallelIntentService implements SensorEventListene
 			}
 		}
 
-
-
 		String msg = typeSensor + " - " + String.valueOf(xVal) + " - " + String.valueOf(yVal) + " - " + String.valueOf(zVal);
  		Log.d("Sensor", msg);
 		JsonUtils.addValue(typeSensor, current_timestamp, xVal, yVal, zVal);

@@ -8,18 +8,19 @@ import org.json.JSONObject;
 
 /**
  * Created by Federico on 30-Nov-16.
+ *
  */
 
-public class JsonUtils {
+class JsonUtils {
 
-	static JSONObject file = new JSONObject();
+	private static JSONObject file = new JSONObject();
 	private static JSONArray acc = new JSONArray();
 	private static JSONArray magnetic = new JSONArray();
 	private static JSONArray geoRotVect = new JSONArray();
 	private static JSONArray pressure = new JSONArray();
 	private static JSONArray rotVect = new JSONArray();
 
-	public static void addGPS(Double lat, Double longit) {
+	static void addGPS(Double lat, Double longit) {
 		try {
 			JSONObject obj = new JSONObject();
 			obj.put("latitude", lat);
@@ -31,7 +32,7 @@ public class JsonUtils {
 		}
 	}
 
-	public static void addWifi(long timestamp, String bssid, String ssid, int rssi ){
+	static void addWifi(long timestamp, String bssid, String ssid, int rssi){
 		try {
 			JSONObject obj = new JSONObject();
 			obj.put("Timestamp", timestamp);
@@ -45,7 +46,7 @@ public class JsonUtils {
 		}
 	}
 
-	public static void addValue(String type, long timestamp, float x, float y, float z) {
+	static void addValue(String type, long timestamp, float x, float y, float z) {
 		try {
 			JSONObject obj = new JSONObject();
 			obj.put("timestamp", timestamp);
@@ -116,7 +117,7 @@ public class JsonUtils {
 		}
 	}
 
-	public static void prepareJson() {
+	private static void prepareJson() {
 		try {
 			file.put("Acceleration", acc);
 			file.put("Magnetic Field", magnetic);
@@ -128,11 +129,11 @@ public class JsonUtils {
 		}
 	}
 
-	public static JSONObject getJsonFile() {
+	static JSONObject getJsonFile() {
 		return file;
 	}
 
-	public static String readJsonFile() {
+	static String readJsonFile() {
 		prepareJson();
 		String json = getJsonFile().toString();
 		Log.d("JSON", json);

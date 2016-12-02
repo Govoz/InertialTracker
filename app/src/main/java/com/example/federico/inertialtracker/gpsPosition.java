@@ -18,12 +18,12 @@ import android.widget.TextView;
  *
  */
 
-public class gpsPosition {
+class gpsPosition {
 
-	static final int MY_PERMISSION_ACCESS_COURSE_LOCATION = 11;
+	private static final int MY_PERMISSION_ACCESS_COURSE_LOCATION = 11;
 
 
-	public static String getGpsPosition(Context c) {
+	static String getGpsPosition(Context c) {
 		LocationManager locationManager = (LocationManager) c.getSystemService(Context.LOCATION_SERVICE);
 
 		LocationListener locationListener = new LocationListener() {
@@ -66,7 +66,7 @@ public class gpsPosition {
 		return msg;
 	}
 
-	public static void setGPSView(Context c, double latitude, double longitude){
+	private static void setGPSView(Context c, double latitude, double longitude){
 		Activity a = (Activity) c;
 		TextView latitudeText = (TextView) a.findViewById(R.id.latitudeGPS);
 		TextView longitudeText = (TextView) a.findViewById(R.id.longitudeGPS);
