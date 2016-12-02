@@ -36,12 +36,13 @@ public class checkSend extends ParallelIntentService {
 	protected void onHandleIntent(Intent intent) {
 		Log.d(TAG, "onHandleIntent(Intent); Started, thread id: " + Thread.currentThread().getId());
 		try {
+
 			// Controllo se sono connesso
 			if (checkConnection()) {
-				Log.d("SEND", "SI");
-				sendData();
+				Log.d("CheckConnection", "Connesso.");
+				// sendData();
 			} else
-				Log.d("SEND", "NO");
+				Log.d("CheckConnection", "Non è possibile connettersi.");
 
 			Thread.sleep(1000);
 		} catch (InterruptedException e) {

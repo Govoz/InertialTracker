@@ -1,5 +1,6 @@
 package com.example.federico.inertialtracker;
 
+import android.content.Context;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -34,8 +35,7 @@ public class MainActivity extends AppCompatActivity {
 					// Get GPS Position
 					gpsPosition.getGpsPosition(MainActivity.this);
 
-					// Start Services
-					onStartService();
+					motionDetection();
 
 				} else {
 					Toast.makeText(MainActivity.this, "Already Started", Toast.LENGTH_SHORT).show();
@@ -66,15 +66,12 @@ public class MainActivity extends AppCompatActivity {
 		});
 	}
 
+	// When motionDetect() detect a motion start the services.
+	public void motionDetection() {
 
-	public void onStartService() {
-		Log.d(TAG, "onStartService(View);");
+		Toast.makeText(this, "MotionDetect attivato", Toast.LENGTH_SHORT).show();
+		motionDetect md = new motionDetect(this);
 
-		Intent logDataStart = new Intent(this, logData.class);
-		Intent checkSendStart = new Intent(this, checkSend.class);
-
-		startService(logDataStart);
-		startService(checkSendStart);
 	}
 
 }
