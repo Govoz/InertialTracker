@@ -67,7 +67,6 @@ class motionDetect implements SensorEventListener {
 	}
 
 	private void onStartService(Context c) {
-		Toast.makeText(c, "START SERVICE", Toast.LENGTH_SHORT).show();
 
 		Intent logDataStart = new Intent(c, logData.class);
 		Intent checkSendStart = new Intent(c, checkSend.class);

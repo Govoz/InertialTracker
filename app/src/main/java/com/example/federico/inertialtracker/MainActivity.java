@@ -10,6 +10,7 @@ public class MainActivity extends AppCompatActivity {
 
 	//startBool is used to implement singleton design pattern.
 	private boolean active = false;
+	static final double FREQUENCY = 2000;
 
 
 	@Override
@@ -45,7 +46,8 @@ public class MainActivity extends AppCompatActivity {
 			// Make a toast and Log.d with json file.
 			@Override
 			public void onClick(View v) {
-				Toast.makeText(MainActivity.this, JsonUtils.readJsonFile(), Toast.LENGTH_LONG).show();
+				//Toast.makeText(MainActivity.this, JsonUtils.readJsonFile(), Toast.LENGTH_LONG).show();
+				JsonUtils.largeLog("VIEWLOG", JsonUtils.readJsonFile());
 			}
 		});
 

@@ -6,6 +6,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.nio.charset.Charset;
+
 /**
  * Created by Federico on 30-Nov-16.
  *
@@ -14,9 +16,12 @@ import org.json.JSONObject;
 class JsonUtils {
 
 	private static JSONObject file = new JSONObject();
+
+	private static JSONArray wifi = new JSONArray();
 	private static JSONArray acc = new JSONArray();
+	private static JSONArray gir = new JSONArray();
+	private static JSONArray orientation = new JSONArray();
 	private static JSONArray magnetic = new JSONArray();
-	private static JSONArray geoRotVect = new JSONArray();
 	private static JSONArray pressure = new JSONArray();
 	private static JSONArray rotVect = new JSONArray();
 
@@ -40,7 +45,7 @@ class JsonUtils {
 			obj.put("Ssid", ssid);
 			obj.put("Rssi", rssi);
 
-			file.put("WIFI", obj);
+			wifi.put(obj);
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
@@ -63,6 +68,19 @@ class JsonUtils {
 						e.printStackTrace();
 					}
 					break;
+
+				case "GIR":
+					try {
+						obj.put("x", x);
+						obj.put("y", y);
+						obj.put("z", z);
+
+						gir.put(obj);
+					} catch (JSONException e) {
+						e.printStackTrace();
+					}
+					break;
+
 				case "MAGNETIC_FIELD":
 					try {
 						obj.put("magnetic_strength_field", x);
@@ -73,18 +91,6 @@ class JsonUtils {
 						e.printStackTrace();
 					}
 
-					break;
-
-				case "GEO_ROT_VECT":
-					try {
-						obj.put("x", x);
-						obj.put("y", y);
-						obj.put("z", z);
-
-						geoRotVect.put(obj);
-					} catch (JSONException e) {
-						e.printStackTrace();
-					}
 					break;
 
 				case "PRESSURE":
@@ -109,6 +115,18 @@ class JsonUtils {
 					}
 					break;
 
+				case "ORIENTATION":
+					try {
+						obj.put("azimuth", x);
+						obj.put("pitch", y);
+						obj.put("roll", z);
+
+						orientation.put(obj);
+					} catch (JSONException e) {
+						e.printStackTrace();
+					}
+					break;
+
 				default:
 					break;
 			}
@@ -120,10 +138,12 @@ class JsonUtils {
 	private static void prepareJson() {
 		try {
 			file.put("Acceleration", acc);
-			file.put("Magnetic Field", magnetic);
-			file.put("Geo Rotaction Vector", geoRotVect);
+			file.put("Gyroscope", gir);
+			file.put("MagneticField", magnetic);
 			file.put("Pressure" , pressure);
-			file.put("Rotaction Vector", rotVect);
+			file.put("RotactionVector", rotVect);
+			file.put("WiFi", wifi);
+			file.put("Orientation", orientation);
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
@@ -136,7 +156,23 @@ class JsonUtils {
 	static String readJsonFile() {
 		prepareJson();
 		String json = getJsonFile().toString();
-		Log.d("JSON", json);
+
 		return json;
+	}
+
+
+
+	//Util for log a large text.
+	public static void largeLog(String tag, String content) {
+		if (content.length() > 4000) {
+			Log.d(tag, content.substring(0, 4000));
+			largeLog(tag, content.substring(4000));
+		} else {
+			Log.d(tag, content);
+		}
+	}
+
+	public static boolean checkFrequency(long current, long last) {
+		return current - last > MainActivity.FREQUENCY;
 	}
 }

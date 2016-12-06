@@ -17,6 +17,8 @@ import com.loopj.android.http.*;
 
 import cz.msebera.android.httpclient.Header;
 
+import static com.example.federico.inertialtracker.JsonUtils.checkFrequency;
+
 
 /**
  * Created by Federico on 15-Nov-16.
@@ -26,7 +28,10 @@ import cz.msebera.android.httpclient.Header;
 public class checkSend extends ParallelIntentService {
 
 	private static final String TAG = checkSend.class.getSimpleName();
-	static String URL = "http://192.168.1.10:80";
+	static String URL = "http://192.168.1.2:80";
+	private static final double FREQUENCY = 2e+9;
+	long last_timestamp;
+	long current_timestamp;
 
 	public checkSend() {
 		// TAG is the name of process
@@ -37,12 +42,21 @@ public class checkSend extends ParallelIntentService {
 		Log.d(TAG, "onHandleIntent(Intent); Started, thread id: " + Thread.currentThread().getId());
 		try {
 
-			// Controllo se sono connesso
-			if (checkConnection()) {
-				Log.d("CheckConnection", "Connesso.");
-				sendData();
-			} else
+			current_timestamp = System.currentTimeMillis();
+			if (checkFrequency(current_timestamp, last_timestamp)) {
+				last_timestamp = current_timestamp;
+				// Controllo se sono connesso
+				if (checkConnection()) {
+
+					Log.d("CheckConnection", "Connesso.");
+
+					String fileString = JsonUtils.readJsonFile();
+					sendData(fileString);
+				}
+
+			} else {
 				Log.d("CheckConnection", "Non è possibile connettersi.");
+			}
 
 			Thread.sleep(1000);
 		} catch (InterruptedException e) {
@@ -80,7 +94,7 @@ public class checkSend extends ParallelIntentService {
 				activeNetwork = connectManager.getActiveNetworkInfo();
 
 				// se sono riuscito a collegarmi ad una rete
-				if (activeNetwork != null) {
+				if (activeNetwork != null && activeNetwork.isConnected()) {
 					if (activeNetwork.getType() == ConnectivityManager.TYPE_WIFI) {
 						writeWifiNetworkLog(wifiNetwork);
 						return true;
@@ -139,6 +153,7 @@ public class checkSend extends ParallelIntentService {
 			String bssid = wifiNetwork.BSSID;
 			String ssid = wifiNetwork.SSID;
 			int rssi = wifiNetwork.level;
+
 			JsonUtils.addWifi(timestamp, bssid, ssid, rssi);
 		}
 	}
@@ -149,19 +164,20 @@ public class checkSend extends ParallelIntentService {
 			String bssid = wifiNetwork.getBSSID();
 			String ssid = wifiNetwork.getSSID();
 			int rssi = wifiNetwork.getRssi();
+
 			JsonUtils.addWifi(timestamp, bssid, ssid, rssi);
 		}
 	}
 
-	public void sendData() {
-		String fileString = JsonUtils.getJsonFile().toString();
+	public void sendData(String dataFile) {
 		Timestamp timestamp = new Timestamp(System.currentTimeMillis());
 		RequestParams data = new RequestParams();
 
 		data.put("timestamp", timestamp);
-		data.put("data", fileString);
+		data.put("data", dataFile);
 
 		HttpRequest.post(URL, data, new AsyncHttpResponseHandler() {
+
 			@Override
 			public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
 				Log.d("Send", "Invio Eseguito");
@@ -172,6 +188,7 @@ public class checkSend extends ParallelIntentService {
 				Log.d("Send", "Invio Fallito");
 			}
 		});
+
 	}
 
 }
