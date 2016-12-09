@@ -15,6 +15,8 @@ import java.util.List;
 
 import com.loopj.android.http.*;
 
+import org.json.JSONObject;
+
 import cz.msebera.android.httpclient.Header;
 
 import static com.example.federico.inertialtracker.JsonUtils.checkFrequency;
@@ -50,8 +52,8 @@ public class checkSend extends ParallelIntentService {
 
 					Log.d("CheckConnection", "Connesso.");
 
-					String fileString = JsonUtils.readJsonFile();
-					sendData(fileString);
+					JSONObject toSendJSON = JsonUtils.prepareToSend();
+					sendData(toSendJSON);
 				}
 
 			} else {
@@ -169,12 +171,13 @@ public class checkSend extends ParallelIntentService {
 		}
 	}
 
-	public void sendData(String dataFile) {
+	public void sendData(JSONObject dataJson) {
 		Timestamp timestamp = new Timestamp(System.currentTimeMillis());
 		RequestParams data = new RequestParams();
 
+		data.setUseJsonStreamer(true);
 		data.put("timestamp", timestamp);
-		data.put("data", dataFile);
+		data.put("data", dataJson);
 
 		HttpRequest.post(URL, data, new AsyncHttpResponseHandler() {
 

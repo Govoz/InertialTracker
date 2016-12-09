@@ -160,6 +160,11 @@ class JsonUtils {
 		return json;
 	}
 
+	static JSONObject prepareToSend(){
+		prepareJson();
+		return file;
+	}
+
 
 
 	//Util for log a large text.
