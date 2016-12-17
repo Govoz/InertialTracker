@@ -3,10 +3,13 @@ var fs = require('fs');
 
 var port = 80;
 
-function prettyJSON(string) {
+function jsonOBJ(string) {
   	string = decodeURIComponent(string);
-		console.log(string)
-		fs.writeFile('test.json', string);
+		//console.log(string)
+		json = JSON.parse(string);
+		console.log(json.timestamp);
+
+		fs.writeFile('test.json', JSON.stringify(json));
 }
 
 var s = http.createServer( function( req, res){
@@ -22,7 +25,7 @@ var s = http.createServer( function( req, res){
         //console.log("Partial body: " + body);
     });
     req.on('end', function () {
-        prettyJSON(body);
+        jsonOBJ(body);
     });
 		res.end('Post Received');
 	}

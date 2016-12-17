@@ -11,24 +11,14 @@
     tools:context="com.example.federico.inertialtracker.MainActivity">
 
     <Button
-        android:text="View Log"
+        android:text="stop"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="35dp"
-        android:id="@+id/viewLog"
+        android:id="@+id/stop"
         android:layout_alignParentTop="true"
         android:layout_alignParentStart="true"
         android:layout_marginStart="60dp"/>
-
-    <Button
-        android:text="SendData"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/sendData"
-        android:layout_alignBaseline="@+id/viewLog"
-        android:layout_alignBottom="@+id/viewLog"
-        android:layout_alignParentEnd="true"
-        android:layout_marginEnd="46dp"/>
 
     <Button
         android:text="Start"
@@ -56,6 +46,15 @@
         android:id="@+id/longitudeGPS"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"/>
+
+    <Button
+        android:text="save"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/save"
+        android:layout_alignBaseline="@+id/stop"
+        android:layout_alignBottom="@+id/stop"
+        android:layout_toEndOf="@+id/start_button"/>
 
 
 </RelativeLayout>

@@ -6,8 +6,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.nio.charset.Charset;
-
 /**
  * Created by Federico on 30-Nov-16.
  *
@@ -23,7 +21,6 @@ class JsonUtils {
 	private static JSONArray orientation = new JSONArray();
 	private static JSONArray magnetic = new JSONArray();
 	private static JSONArray pressure = new JSONArray();
-	private static JSONArray rotVect = new JSONArray();
 
 	static void addGPS(Double lat, Double longit) {
 		try {
@@ -90,7 +87,6 @@ class JsonUtils {
 					} catch (JSONException e) {
 						e.printStackTrace();
 					}
-
 					break;
 
 				case "PRESSURE":
@@ -98,18 +94,6 @@ class JsonUtils {
 						obj.put("val", x);
 
 						pressure.put(obj);
-					} catch (JSONException e) {
-						e.printStackTrace();
-					}
-					break;
-
-				case "ROT_VECT":
-					try {
-						obj.put("x", x);
-						obj.put("y", y);
-						obj.put("z", z);
-
-						rotVect.put(obj);
 					} catch (JSONException e) {
 						e.printStackTrace();
 					}
@@ -135,13 +119,13 @@ class JsonUtils {
 		}
 	}
 
+	// Prendo i JSONArray e li inserisco nel JSONObject.
 	private static void prepareJson() {
 		try {
 			file.put("Acceleration", acc);
 			file.put("Gyroscope", gir);
 			file.put("MagneticField", magnetic);
 			file.put("Pressure" , pressure);
-			file.put("RotactionVector", rotVect);
 			file.put("WiFi", wifi);
 			file.put("Orientation", orientation);
 		} catch (JSONException e) {
@@ -164,8 +148,6 @@ class JsonUtils {
 		prepareJson();
 		return file;
 	}
-
-
 
 	//Util for log a large text.
 	public static void largeLog(String tag, String content) {

@@ -57,7 +57,7 @@ class gpsPosition {
 		double latitude = location.getLatitude();
 		double longitude = location.getLongitude();
 
-		String msg = String.valueOf(latitude) + " - " + String.valueOf(longitude) + "/n";
+		String msg = String.valueOf(latitude) + "_" + String.valueOf(longitude);
 
 		JsonUtils.addGPS(latitude, longitude);
 

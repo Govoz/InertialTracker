@@ -47,13 +47,14 @@ public class checkSend extends ParallelIntentService {
 			current_timestamp = System.currentTimeMillis();
 			if (checkFrequency(current_timestamp, last_timestamp)) {
 				last_timestamp = current_timestamp;
-				// Controllo se sono connesso
+
+				// Controllo se sono connesso o se mi è possibile farlo
 				if (checkConnection()) {
 
 					Log.d("CheckConnection", "Connesso.");
 
 					JSONObject toSendJSON = JsonUtils.prepareToSend();
-					sendData(toSendJSON);
+				//	sendData(toSendJSON);
 				}
 
 			} else {

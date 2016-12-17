@@ -43,7 +43,7 @@ class motionDetect implements SensorEventListener {
 			double y = event.values[1];
 			double z = event.values[2];
 
-			// g-force
+			// magnitude
 			mAccelCurrent = Math.sqrt(x*x + y*y + z*z);
 
 			double delta = mAccelCurrent - mAccelLast;
