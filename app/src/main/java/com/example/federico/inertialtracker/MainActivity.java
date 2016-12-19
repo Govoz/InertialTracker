@@ -1,8 +1,10 @@
 package com.example.federico.inertialtracker;
 
 import android.content.Intent;
+import android.location.Location;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.method.ScrollingMovementMethod;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -20,9 +22,9 @@ public class MainActivity extends AppCompatActivity {
 
 	//startBool is used to implement singleton design pattern.
 	private boolean active = false;
-	static final double FREQUENCY = 2000;
-	private static String startGps;
-	private static String stopGps;
+	static final double FREQUENCY = 50;  //20Hz
+	private static Location startGps;
+	private static Location stopGps;
 
 
 	@Override
@@ -39,10 +41,19 @@ public class MainActivity extends AppCompatActivity {
 					Toast.makeText(MainActivity.this, "Start", Toast.LENGTH_SHORT).show();
 					active = true;
 
-					// Get GPS Position
+					// Get GPS Position && set Label
 					startGps = gpsPosition.getGpsPosition(MainActivity.this);
+					TextView latitudeText = (TextView) findViewById(R.id.latitudeGPS_start);
+					TextView longitudeText = (TextView) findViewById(R.id.longitudeGPS_start);
+					gpsPosition.setGPSView(startGps, latitudeText, longitudeText);
 
-					motionDetection();
+					//motionDetection();
+
+					Intent logDataStart = new Intent(MainActivity.this, logData.class);
+					Intent checkSendStart = new Intent(MainActivity.this, checkSend.class);
+
+					startService(logDataStart);
+					startService(checkSendStart);
 
 				} else {
 					Toast.makeText(MainActivity.this, "Already Started", Toast.LENGTH_SHORT).show();
@@ -58,13 +69,17 @@ public class MainActivity extends AppCompatActivity {
 			@Override
 			public void onClick(View v) {
 				//JsonUtils.largeLog("VIEWLOG", JsonUtils.readJsonFile());
+
 				stopGps = gpsPosition.getGpsPosition(MainActivity.this);
+				TextView latitudeText = (TextView) findViewById(R.id.latitudeGPS_stop);
+				TextView longitudeText = (TextView) findViewById(R.id.longitudeGPS_stop);
+				gpsPosition.setGPSView(stopGps, latitudeText, longitudeText);
 
 				Intent logDataStart = new Intent(MainActivity.this, logData.class);
 				Intent checkSendStart = new Intent(MainActivity.this, checkSend.class);
 
-				MainActivity.this.stopService(logDataStart);
-				MainActivity.this.stopService(checkSendStart);
+				stopService(logDataStart);
+				stopService(checkSendStart);
 			}
 		});
 
@@ -89,7 +104,7 @@ public class MainActivity extends AppCompatActivity {
 
 		String jsonString = json.toString();
 
-		Toast.makeText(this,jsonString, Toast.LENGTH_SHORT).show();
+		//Toast.makeText(this,jsonString, Toast.LENGTH_SHORT).show();
 
 		try {
 			FileOutputStream fOut = new FileOutputStream(file, true);
@@ -100,6 +115,12 @@ public class MainActivity extends AppCompatActivity {
 			fOut.close();
 
 			Toast.makeText(MainActivity.this, "Salvato", Toast.LENGTH_SHORT).show();
+
+			//set textView
+			TextView jsonTextView = (TextView) findViewById(R.id.jsonText);
+			jsonTextView.setMovementMethod(new ScrollingMovementMethod());
+			jsonTextView.setText(jsonString);
+
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -109,7 +130,12 @@ public class MainActivity extends AppCompatActivity {
 	}
 
 	private String setFileName() {
-		String fileName = startGps + "_" + stopGps + ".txt";
+		String latitudeStart = String.valueOf(startGps.getLatitude());
+		String longitudeStart = String.valueOf(startGps.getLongitude());
+		String latitudeStop = String.valueOf(stopGps.getLatitude());
+		String longitudeStop = String.valueOf(stopGps.getLongitude());
+
+		String fileName = latitudeStart + "_" + longitudeStart + "__" + latitudeStop + "_" + longitudeStop + ".txt";
 		return fileName;
 	}
 

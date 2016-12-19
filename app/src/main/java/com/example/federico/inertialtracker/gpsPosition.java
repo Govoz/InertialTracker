@@ -23,7 +23,7 @@ class gpsPosition {
 	private static final int MY_PERMISSION_ACCESS_COURSE_LOCATION = 11;
 
 
-	static String getGpsPosition(Context c) {
+	static Location getGpsPosition(Context c) {
 		LocationManager locationManager = (LocationManager) c.getSystemService(Context.LOCATION_SERVICE);
 
 		LocationListener locationListener = new LocationListener() {
@@ -46,30 +46,29 @@ class gpsPosition {
 					MY_PERMISSION_ACCESS_COURSE_LOCATION);
 		}
 
-		locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 2000, 1, locationListener);
+		/*locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 2000, 1, locationListener);
 		Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
 
 		if (location == null) {
 			locationManager.requestSingleUpdate(LocationManager.GPS_PROVIDER, locationListener, null);
 			location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
 		}
+		*/
+
+		locationManager.requestSingleUpdate(LocationManager.GPS_PROVIDER, locationListener, null);
+		Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
 
 		double latitude = location.getLatitude();
 		double longitude = location.getLongitude();
 
-		String msg = String.valueOf(latitude) + "_" + String.valueOf(longitude);
+		JsonUtils.addGPS(System.currentTimeMillis(),latitude, longitude);
 
-		JsonUtils.addGPS(latitude, longitude);
-
-		setGPSView(c, latitude, longitude);
-
-		return msg;
+		return location;
 	}
 
-	private static void setGPSView(Context c, double latitude, double longitude){
-		Activity a = (Activity) c;
-		TextView latitudeText = (TextView) a.findViewById(R.id.latitudeGPS);
-		TextView longitudeText = (TextView) a.findViewById(R.id.longitudeGPS);
+	public static void setGPSView(Location l, TextView latitudeText, TextView longitudeText){
+		double latitude = l.getLatitude();
+		double longitude = l.getLongitude();
 
 		latitudeText.setText(String.valueOf(latitude));
 		longitudeText.setText(String.valueOf(longitude));

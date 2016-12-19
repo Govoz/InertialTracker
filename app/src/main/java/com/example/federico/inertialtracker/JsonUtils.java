@@ -6,6 +6,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 /**
  * Created by Federico on 30-Nov-16.
  *
@@ -15,6 +18,7 @@ class JsonUtils {
 
 	private static JSONObject file = new JSONObject();
 
+	private static JSONArray gps = new JSONArray();
 	private static JSONArray wifi = new JSONArray();
 	private static JSONArray acc = new JSONArray();
 	private static JSONArray gir = new JSONArray();
@@ -22,13 +26,14 @@ class JsonUtils {
 	private static JSONArray magnetic = new JSONArray();
 	private static JSONArray pressure = new JSONArray();
 
-	static void addGPS(Double lat, Double longit) {
+	static void addGPS(long timestamp,Double lat, Double longit) {
 		try {
 			JSONObject obj = new JSONObject();
+			obj.put("Timestamp", timeStampReadable(timestamp));
 			obj.put("latitude", lat);
 			obj.put("longitude", longit);
 
-			file.put("GPS", obj);
+			gps.put(obj);
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
@@ -37,7 +42,7 @@ class JsonUtils {
 	static void addWifi(long timestamp, String bssid, String ssid, int rssi){
 		try {
 			JSONObject obj = new JSONObject();
-			obj.put("Timestamp", timestamp);
+			obj.put("Timestamp", timeStampReadable(timestamp));
 			obj.put("Bssid", bssid);
 			obj.put("Ssid", ssid);
 			obj.put("Rssi", rssi);
@@ -51,7 +56,7 @@ class JsonUtils {
 	static void addValue(String type, long timestamp, float x, float y, float z) {
 		try {
 			JSONObject obj = new JSONObject();
-			obj.put("timestamp", timestamp);
+			obj.put("timestamp", timeStampReadable(timestamp));
 
 			switch (type) {
 				case "ACC":
@@ -122,6 +127,7 @@ class JsonUtils {
 	// Prendo i JSONArray e li inserisco nel JSONObject.
 	private static void prepareJson() {
 		try {
+			file.put("Gps", gps);
 			file.put("Acceleration", acc);
 			file.put("Gyroscope", gir);
 			file.put("MagneticField", magnetic);
@@ -161,5 +167,12 @@ class JsonUtils {
 
 	public static boolean checkFrequency(long current, long last) {
 		return current - last > MainActivity.FREQUENCY;
+	}
+
+	public static String timeStampReadable(long timestamp){
+		SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss:SSS");
+		String msg  = dateFormat.format(new Date(timestamp));
+
+		return msg;
 	}
 }

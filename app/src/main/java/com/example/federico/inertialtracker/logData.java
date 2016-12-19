@@ -7,6 +7,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.util.List;
 
@@ -28,6 +29,12 @@ public class logData extends ParallelIntentService implements SensorEventListene
 	long last_timestampGIR;
 	long last_timestampORIENT;
 
+	SensorManager mSensorManager;
+	Sensor accelerometer;
+	Sensor magnetic_field;
+	Sensor barometer;
+	Sensor gyroscope;
+
 	String typeSensor = "";
 
 	//Use for getOrientation()
@@ -41,18 +48,26 @@ public class logData extends ParallelIntentService implements SensorEventListene
 		super(TAG);
 	}
 
+	@Override
+	public void onDestroy(){
+		Toast.makeText(this, "Destroy",Toast.LENGTH_SHORT).show();
+		mSensorManager.unregisterListener(this);
+		//Thread.currentThread().interrupt();
+		super.onDestroy();
+	}
+
 	protected void onHandleIntent(Intent intent) {
 
 		Log.d(TAG, "onHandleIntent(Intent); Started, thread id: " + Thread.currentThread().getId());
 
 		try {
 
-			SensorManager mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+			mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
 
-			Sensor accelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-			Sensor magnetic_field = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
-			Sensor barometer = mSensorManager.getDefaultSensor(Sensor.TYPE_PRESSURE);
-			Sensor gyroscope = mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
+			accelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+			magnetic_field = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+			barometer = mSensorManager.getDefaultSensor(Sensor.TYPE_PRESSURE);
+			gyroscope = mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
 
 			if (accelerometer != null)
 				mSensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_NORMAL);
@@ -182,4 +197,5 @@ public class logData extends ParallelIntentService implements SensorEventListene
 		}
 		Log.d("LIST", msg.toString());
 	}
+
 }

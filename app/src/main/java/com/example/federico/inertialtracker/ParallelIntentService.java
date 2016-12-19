@@ -38,6 +38,7 @@ public abstract class ParallelIntentService extends Service {
 
 	private final ThreadPoolExecutor ThreadPoolExecutor = new ParallelThreadPoolExecutor(CORE_POOL_SIZE,
 			MAXIMUM_POOL_SIZE, KEEP_ALIVE, TimeUnit.SECONDS, sPoolWorkQueue, sThreadFactory);
+	private boolean mRunnable = true;
 
 	//----------------------------------------------------------------------
 	private class ParallelThreadPoolExecutor extends ThreadPoolExecutor {
@@ -60,12 +61,13 @@ public abstract class ParallelIntentService extends Service {
 	//----------------------------------------------------------------------
 	//START TASK
 	public class Task implements Runnable {
+
 		public Task(final Intent intent) {
 			this.intent = intent;
 		}
 
 		public void run() {
-			for(;;) {
+			while(mRunnable) {
 				onHandleIntent(intent);
 			}
 		}
@@ -91,6 +93,12 @@ public abstract class ParallelIntentService extends Service {
 	@Override
 	public void onStart(Intent intent, int startId) {
 		ThreadPoolExecutor.execute(new Task(intent));
+	}
+
+	@Override
+	public void onDestroy() {
+		mRunnable = false;
+		super.onDestroy();
 	}
 
 	@Override

@@ -11,50 +11,85 @@
     tools:context="com.example.federico.inertialtracker.MainActivity">
 
     <Button
-        android:text="stop"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="35dp"
-        android:id="@+id/stop"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentStart="true"
-        android:layout_marginStart="60dp"/>
-
-    <Button
         android:text="Start"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="76dp"
-        android:id="@+id/start_button"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"/>
+        android:id="@+id/start_button"/>
 
     <TextView
-        android:text="..."
-        android:layout_width="wrap_content"
+        android:text="Latitude"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="44dp"
-        android:id="@+id/latitudeGPS"/>
+        android:id="@+id/latitudeGPS_start"
+        android:layout_below="@+id/start_button"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="10dp"
+        android:textStyle="normal|bold"
+        android:textAlignment="center"/>
 
     <TextView
-        android:text="..."
-        android:layout_width="wrap_content"
+        android:text="Longitude"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="11dp"
-        android:id="@+id/longitudeGPS"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"/>
+        android:id="@+id/longitudeGPS_start"
+        android:layout_below="@+id/latitudeGPS_start"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="10dp"
+        android:textStyle="normal|bold"
+        android:textAlignment="center"/>
 
     <Button
-        android:text="save"
-        android:layout_width="wrap_content"
+        android:text="Save"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/save"
-        android:layout_alignBaseline="@+id/stop"
-        android:layout_alignBottom="@+id/stop"
-        android:layout_toEndOf="@+id/start_button"/>
+        android:layout_below="@+id/stop"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="60dp"/>
+
+    <Button
+        android:text="stop"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/stop"
+        android:layout_below="@+id/start_button"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="60dp"/>
+
+    <TextView
+        android:text="Latitude"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/latitudeGPS_stop"
+        android:layout_below="@+id/stop"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="10dp"
+        android:textStyle="normal|bold"
+        android:textAlignment="center"/>
+
+    <TextView
+        android:text="Longitude"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/longitudeGPS_stop"
+        android:layout_below="@+id/latitudeGPS_stop"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="10dp"
+        android:textStyle="normal|bold"
+        android:textAlignment="center"/>
+
+    <TextView
+        android:text=""
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/jsonText"
+        android:layout_below="@+id/save"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="10dp"
+        android:textStyle="normal"
+        android:scrollbars="vertical"
+        android:maxLines="100"
+        />
 
 
 </RelativeLayout>
