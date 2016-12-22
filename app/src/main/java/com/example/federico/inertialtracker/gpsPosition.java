@@ -21,6 +21,7 @@ import android.widget.TextView;
 class gpsPosition {
 
 	private static final int MY_PERMISSION_ACCESS_COURSE_LOCATION = 11;
+	static Location mCurrentLocation;
 
 
 	static Location getGpsPosition(Context c) {
@@ -29,6 +30,7 @@ class gpsPosition {
 		LocationListener locationListener = new LocationListener() {
 
 			public void onLocationChanged(Location location) {
+				mCurrentLocation = location;
 			}
 
 			public void onStatusChanged(String provider, int status, Bundle extras) {
@@ -46,24 +48,18 @@ class gpsPosition {
 					MY_PERMISSION_ACCESS_COURSE_LOCATION);
 		}
 
-		/*locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 2000, 1, locationListener);
-		Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+		locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0 , 0, locationListener);
+		mCurrentLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
 
-		if (location == null) {
-			locationManager.requestSingleUpdate(LocationManager.GPS_PROVIDER, locationListener, null);
-			location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+		if(mCurrentLocation!= null) {
+			double latitude = mCurrentLocation.getLatitude();
+			double longitude = mCurrentLocation.getLongitude();
+
+			JsonUtils.addGPS(System.currentTimeMillis(), latitude, longitude);
 		}
-		*/
+		locationManager.removeUpdates(locationListener);
 
-		locationManager.requestSingleUpdate(LocationManager.GPS_PROVIDER, locationListener, null);
-		Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-
-		double latitude = location.getLatitude();
-		double longitude = location.getLongitude();
-
-		JsonUtils.addGPS(System.currentTimeMillis(),latitude, longitude);
-
-		return location;
+		return mCurrentLocation;
 	}
 
 	public static void setGPSView(Location l, TextView latitudeText, TextView longitudeText){

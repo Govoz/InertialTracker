@@ -42,10 +42,11 @@ public class MainActivity extends AppCompatActivity {
 					active = true;
 
 					// Get GPS Position && set Label
-					startGps = gpsPosition.getGpsPosition(MainActivity.this);
+					gpsPosition start_gpsPosition = new gpsPosition();
+					startGps = start_gpsPosition.getGpsPosition(MainActivity.this);
 					TextView latitudeText = (TextView) findViewById(R.id.latitudeGPS_start);
 					TextView longitudeText = (TextView) findViewById(R.id.longitudeGPS_start);
-					gpsPosition.setGPSView(startGps, latitudeText, longitudeText);
+					start_gpsPosition.setGPSView(startGps, latitudeText, longitudeText);
 
 					//motionDetection();
 
@@ -69,11 +70,11 @@ public class MainActivity extends AppCompatActivity {
 			@Override
 			public void onClick(View v) {
 				//JsonUtils.largeLog("VIEWLOG", JsonUtils.readJsonFile());
-
-				stopGps = gpsPosition.getGpsPosition(MainActivity.this);
+				gpsPosition stop_gpsPosition = new gpsPosition();
+				stopGps = stop_gpsPosition.getGpsPosition(MainActivity.this);
 				TextView latitudeText = (TextView) findViewById(R.id.latitudeGPS_stop);
 				TextView longitudeText = (TextView) findViewById(R.id.longitudeGPS_stop);
-				gpsPosition.setGPSView(stopGps, latitudeText, longitudeText);
+				stop_gpsPosition.setGPSView(stopGps, latitudeText, longitudeText);
 
 				Intent logDataStart = new Intent(MainActivity.this, logData.class);
 				Intent checkSendStart = new Intent(MainActivity.this, checkSend.class);

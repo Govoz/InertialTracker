@@ -50,7 +50,7 @@ public class logData extends ParallelIntentService implements SensorEventListene
 
 	@Override
 	public void onDestroy(){
-		Toast.makeText(this, "Destroy",Toast.LENGTH_SHORT).show();
+		//Toast.makeText(this, "Destroy",Toast.LENGTH_SHORT).show();
 		mSensorManager.unregisterListener(this);
 		//Thread.currentThread().interrupt();
 		super.onDestroy();
