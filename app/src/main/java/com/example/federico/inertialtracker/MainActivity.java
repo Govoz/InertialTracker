@@ -38,6 +38,7 @@ public class MainActivity extends AppCompatActivity {
 			@Override
 			public void onClick(View v) {
 				if (!active) {
+
 					Toast.makeText(MainActivity.this, "Start", Toast.LENGTH_SHORT).show();
 					active = true;
 

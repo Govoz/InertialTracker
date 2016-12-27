@@ -173,10 +173,15 @@ public class logData extends ParallelIntentService implements SensorEventListene
 				if (success) {
 					float orientation[] = new float[3];
 					SensorManager.getOrientation(R, orientation);
-					Log.d("ORIENTATION", orientation[0] + " - " + orientation[1] + " - " + orientation[2]);
+
+					double azimuth = Math.toDegrees(orientation[0]);
+					if (azimuth < 0){
+						azimuth += 360;
+					}
+					Log.d("ORIENTATION", azimuth + " - " + orientation[1] + " - " + orientation[2]);
 					typeSensor = "ORIENTATION";
 
-					JsonUtils.addValue(typeSensor, current_timestamp, orientation[0], orientation[1], orientation[2]);
+					JsonUtils.addValue(typeSensor, current_timestamp, (float)azimuth, orientation[1], orientation[2]);
 				}
 			}
 		}
