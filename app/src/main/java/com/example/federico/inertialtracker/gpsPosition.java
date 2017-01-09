@@ -11,62 +11,64 @@ import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.widget.TextView;
 
-
-
 /**
  * Created by Federico on 30-Nov-16.
- *
  */
 
 class gpsPosition {
+  private static final int MY_PERMISSION_ACCESS_COURSE_LOCATION = 11;
+  static Location mCurrentLocation;
+  static LocationManager locationManager;
 
-	private static final int MY_PERMISSION_ACCESS_COURSE_LOCATION = 11;
-	static Location mCurrentLocation;
+  gpsPosition(Context c){
+    locationManager = (LocationManager) c.getSystemService(Context.LOCATION_SERVICE);
+    LocationListener locationListener = new LocationListener() {
 
+      public void onLocationChanged(Location location) {
+        mCurrentLocation = location;
+      }
 
-	static Location getGpsPosition(Context c) {
-		LocationManager locationManager = (LocationManager) c.getSystemService(Context.LOCATION_SERVICE);
+      public void onStatusChanged(String provider, int status, Bundle extras) {
+      }
 
-		LocationListener locationListener = new LocationListener() {
+      public void onProviderEnabled(String provider) {
+      }
 
-			public void onLocationChanged(Location location) {
-				mCurrentLocation = location;
-			}
+      public void onProviderDisabled(String provider) {
+      }
+    };
 
-			public void onStatusChanged(String provider, int status, Bundle extras) {
-			}
+    if (ActivityCompat.checkSelfPermission(c, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(c, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+      ActivityCompat.requestPermissions((Activity) c, new String[]{android.Manifest.permission.ACCESS_COARSE_LOCATION},
+              MY_PERMISSION_ACCESS_COURSE_LOCATION);
+    }
 
-			public void onProviderEnabled(String provider) {
-			}
+    boolean isGPSEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
 
-			public void onProviderDisabled(String provider) {
-			}
-		};
+    if (isGPSEnabled) {
+      locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
+      locationManager.requestSingleUpdate(LocationManager.GPS_PROVIDER, locationListener, null);
 
-		if (ActivityCompat.checkSelfPermission(c, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(c, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-			ActivityCompat.requestPermissions((Activity) c, new String[]{android.Manifest.permission.ACCESS_COARSE_LOCATION},
-					MY_PERMISSION_ACCESS_COURSE_LOCATION);
-		}
+      mCurrentLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+    }
+  }
 
-		locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0 , 0, locationListener);
-		mCurrentLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+  public Location getGpsPosition(Context c) {
+    if (mCurrentLocation != null) {
+      double latitude = mCurrentLocation.getLatitude();
+      double longitude = mCurrentLocation.getLongitude();
 
-		if(mCurrentLocation!= null) {
-			double latitude = mCurrentLocation.getLatitude();
-			double longitude = mCurrentLocation.getLongitude();
+      JsonUtils.addGPS(System.currentTimeMillis(), latitude, longitude);
+    }
 
-			JsonUtils.addGPS(System.currentTimeMillis(), latitude, longitude);
-		}
-		locationManager.removeUpdates(locationListener);
+    return mCurrentLocation;
+  }
 
-		return mCurrentLocation;
-	}
+  public static void setGPSView(Location l, TextView latitudeText, TextView longitudeText) {
+    double latitude = l.getLatitude();
+    double longitude = l.getLongitude();
 
-	public static void setGPSView(Location l, TextView latitudeText, TextView longitudeText){
-		double latitude = l.getLatitude();
-		double longitude = l.getLongitude();
-
-		latitudeText.setText(String.valueOf(latitude));
-		longitudeText.setText(String.valueOf(longitude));
-	}
+    latitudeText.setText(String.valueOf(latitude));
+    longitudeText.setText(String.valueOf(longitude));
+  }
 }

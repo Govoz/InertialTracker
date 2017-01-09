@@ -11,69 +11,61 @@ import android.widget.Toast;
 
 /**
  * Created by Federico on 02-Dec-16.
- *
  */
 
 class motionDetect implements SensorEventListener {
 
-	private static final double SENSIBILITY = 1;
 
-	private static SensorManager mSensorManager;
-	private double mAccelCurrent;
-	private double mAccelLast;
-	private Context context;
+  private static SensorManager mSensorManager;
+  private double mGravity;
+  private Context context;
 
-	motionDetect(Context c){
-		context = c;
-		mSensorManager = (SensorManager) c.getSystemService(Context.SENSOR_SERVICE);
-		Sensor accelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-		mSensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_UI);
+  motionDetect(Context c) {
+    context = c;
+    mSensorManager = (SensorManager) c.getSystemService(Context.SENSOR_SERVICE);
+    Sensor accelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+    mSensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_UI);
 
-		mAccelCurrent = SensorManager.GRAVITY_EARTH;
-		mAccelLast = SensorManager.GRAVITY_EARTH;
-	}
+    mGravity = SensorManager.GRAVITY_EARTH;
+  }
 
 
-	@Override
-	public void onSensorChanged(SensorEvent event) {
-		if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER){
+  @Override
+  public void onSensorChanged(SensorEvent event) {
+    if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
 
-			// Shake detection
-			double x = event.values[0];
-			double y = event.values[1];
-			double z = event.values[2];
+      // Shake detection
+      double x = event.values[0];
+      double y = event.values[1];
+      double z = event.values[2];
 
-			// magnitude
-			mAccelCurrent = Math.sqrt(x*x + y*y + z*z);
+      // magnitude
+      double magnitude = Math.sqrt(x * x + y * y + z * z);
 
-			double delta = mAccelCurrent - mAccelLast;
+      double delta = magnitude - mGravity;
 
-			if(delta > SENSIBILITY){
-				Toast.makeText(context , "MOTION DETECTED", Toast.LENGTH_SHORT).show();
-				// Start Services
-				onStartService(context);
-				this.stop();
-			}
-		}
-	}
+      if (delta > parameters.SENSIBILITY) {
+        Toast.makeText(context, "MOTION DETECTED", Toast.LENGTH_SHORT).show();
+        // Start Services
+        onStartService(context);
 
-	@Override
-	public void onAccuracyChanged(Sensor sensor, int accuracy) {
+        mSensorManager.unregisterListener(this);
+      }
+    }
+  }
 
-	}
+  @Override
+  public void onAccuracyChanged(Sensor sensor, int accuracy) {
 
-	private void stop(){
-		mSensorManager.unregisterListener(this);
-	}
+  }
 
-	private void onStartService(Context c) {
+  private void onStartService(Context c) {
+    Intent logDataStart = new Intent(c, logData.class);
+    Intent checkSendStart = new Intent(c, checkSend.class);
 
-		Intent logDataStart = new Intent(c, logData.class);
-		Intent checkSendStart = new Intent(c, checkSend.class);
-
-		c.startService(logDataStart);
-		c.startService(checkSendStart);
-	}
+    c.startService(logDataStart);
+    c.startService(checkSendStart);
+  }
 
 }
 

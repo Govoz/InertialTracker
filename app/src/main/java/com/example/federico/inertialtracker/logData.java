@@ -19,188 +19,183 @@ import static com.example.federico.inertialtracker.JsonUtils.checkFrequency;
 
 public class logData extends ParallelIntentService implements SensorEventListener {
 
-	private static final String TAG = logData.class.getSimpleName();
+  private static final String TAG = logData.class.getSimpleName();
 
-	long current_timestamp;
+  long current_timestamp;
 
-	long last_timestampACC;
-	long last_timestampMAGN;
-	long last_timestampPRES;
-	long last_timestampGIR;
-	long last_timestampORIENT;
+  long last_timestampACC;
+  long last_timestampMAGN;
+  long last_timestampPRES;
+  long last_timestampGIR;
+  long last_timestampORIENT;
 
-	SensorManager mSensorManager;
-	Sensor accelerometer;
-	Sensor magnetic_field;
-	Sensor barometer;
-	Sensor gyroscope;
+  SensorManager mSensorManager;
+  Sensor accelerometer;
+  Sensor magnetic_field;
+  Sensor barometer;
+  Sensor gyroscope;
 
-	String typeSensor = "";
+  String typeSensor = "";
 
-	//Use for getOrientation()
-	float[] mGravity;
-	float[] mGeomagnetic;
+  //Use for getOrientation()
+  float[] mGravity;
+  float[] mGeomagnetic;
 
-	List<Sensor> sensorList;
+  List<Sensor> sensorList;
 
-	public logData() {
-		// TAG is the name of process
-		super(TAG);
-	}
+  public logData() {
+    // TAG is the name of process
+    super(TAG);
+  }
 
-	@Override
-	public void onDestroy(){
-		//Toast.makeText(this, "Destroy",Toast.LENGTH_SHORT).show();
-		mSensorManager.unregisterListener(this);
-		//Thread.currentThread().interrupt();
-		super.onDestroy();
-	}
+  @Override
+  public void onDestroy() {
+    mSensorManager.unregisterListener(this);
+    super.onDestroy();
+  }
 
-	protected void onHandleIntent(Intent intent) {
+  protected void onHandleIntent(Intent intent) {
+    Log.d(TAG, "onHandleIntent(Intent); Started, thread id: " + Thread.currentThread().getId());
 
-		Log.d(TAG, "onHandleIntent(Intent); Started, thread id: " + Thread.currentThread().getId());
+    try {
+      // voglio provare a mettere tutto questo tranne lo sleep nel costruttore
+      mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
 
-		try {
+      accelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+      magnetic_field = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+      barometer = mSensorManager.getDefaultSensor(Sensor.TYPE_PRESSURE);
+      gyroscope = mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
 
-			mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+      if (accelerometer != null)
+        mSensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_NORMAL);
+      if (magnetic_field != null)
+        mSensorManager.registerListener(this, magnetic_field, SensorManager.SENSOR_DELAY_NORMAL);
+      if (barometer != null)
+        mSensorManager.registerListener(this, barometer, SensorManager.SENSOR_DELAY_NORMAL);
+      if (gyroscope != null)
+        mSensorManager.registerListener(this, gyroscope, SensorManager.SENSOR_DELAY_NORMAL);
 
-			accelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-			magnetic_field = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
-			barometer = mSensorManager.getDefaultSensor(Sensor.TYPE_PRESSURE);
-			gyroscope = mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
+      Thread.sleep(1000);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+  }
 
-			if (accelerometer != null)
-				mSensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_NORMAL);
-			if (magnetic_field != null)
-				mSensorManager.registerListener(this, magnetic_field, SensorManager.SENSOR_DELAY_NORMAL);
-			if (barometer != null)
-				mSensorManager.registerListener(this, barometer, SensorManager.SENSOR_DELAY_NORMAL);
-			if (gyroscope != null)
-				mSensorManager.registerListener(this, gyroscope, SensorManager.SENSOR_DELAY_NORMAL);
+  @Override
+  public void onSensorChanged(SensorEvent event) {
+    float xVal = event.values[0];
+    float yVal = event.values[1];
+    float zVal = event.values[2];
 
-			Thread.sleep(1000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-	}
+    if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+      current_timestamp = System.currentTimeMillis();
+      if (checkFrequency(current_timestamp, last_timestampACC)) {
+        last_timestampACC = current_timestamp;
+        typeSensor = "ACC";
 
-	@Override
-	public void onSensorChanged(SensorEvent event) {
-		float xVal;
-		float yVal;
-		float zVal;
+        //mGravity mi serve per il getOrientation()
+        mGravity = event.values;
 
-		if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-			current_timestamp = System.currentTimeMillis();
-			if (checkFrequency(current_timestamp, last_timestampACC)) {
-				last_timestampACC = current_timestamp;
-				xVal = event.values[0];
-				yVal = event.values[1];
-				zVal = event.values[2];
-				typeSensor = "ACC";
+        String msg = typeSensor + " - " + String.valueOf(xVal) + " - " + String.valueOf(yVal) + " - " + String.valueOf(zVal);
+        Log.d("Sensor", msg);
 
-				mGravity = event.values;
+        JsonUtils.addValue(typeSensor, current_timestamp, xVal, yVal, zVal);
+      }
+    } else if (event.sensor.getType() == Sensor.TYPE_GYROSCOPE) {
+      current_timestamp = System.currentTimeMillis();
+      if (checkFrequency(current_timestamp, last_timestampGIR)) {
+        last_timestampGIR = current_timestamp;
+        typeSensor = "GIR";
 
-				String msg = typeSensor + " - " + String.valueOf(xVal) + " - " + String.valueOf(yVal) + " - " + String.valueOf(zVal);
-				Log.d("Sensor", msg);
-				JsonUtils.addValue(typeSensor, current_timestamp, xVal, yVal, zVal);
-			}
-		}
+        String msg = typeSensor + " - " + String.valueOf(xVal) + " - " + String.valueOf(yVal) + " - " + String.valueOf(zVal);
+        Log.d("Sensor", msg);
 
-		else if (event.sensor.getType() == Sensor.TYPE_GYROSCOPE) {
-			current_timestamp = System.currentTimeMillis();
-			if (checkFrequency(current_timestamp, last_timestampGIR)) {
-				last_timestampGIR = current_timestamp;
-				xVal = event.values[0];
-				yVal = event.values[1];
-				zVal = event.values[2];
-				typeSensor = "GIR";
+        JsonUtils.addValue(typeSensor, current_timestamp, xVal, yVal, zVal);
+      }
+    } else if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
+      current_timestamp = System.currentTimeMillis();
+      if (checkFrequency(current_timestamp, last_timestampMAGN)) {
+        last_timestampMAGN = current_timestamp;
 
-				String msg = typeSensor + " - " + String.valueOf(xVal) + " - " + String.valueOf(yVal) + " - " + String.valueOf(zVal);
-				Log.d("Sensor", msg);
-				JsonUtils.addValue(typeSensor, current_timestamp, xVal, yVal, zVal);
-			}
-		}
+        double magnetic_strength_field = Math.sqrt(Math.pow(xVal, 2) + Math.pow(yVal, 2) + Math.pow(zVal, 2));
+        double direction = (Math.atan2(xVal, yVal));
 
-		else if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
-			current_timestamp = System.currentTimeMillis();
-			if (checkFrequency(current_timestamp, last_timestampMAGN)) {
-				last_timestampMAGN = current_timestamp;
-				xVal = event.values[0];
-				yVal = event.values[1];
-				zVal = event.values[2];
-				double magnetic_strength_field = Math.sqrt(Math.pow(xVal, 2) + Math.pow(yVal, 2) + Math.pow(zVal, 2));
-				double direction = (Math.atan2(xVal, yVal));
-				if (direction < 0)
-					direction += 2 * Math.PI;
-				double directionDegree = direction * (180 / Math.PI);
-				typeSensor = "MAGNETIC_FIELD";
-				xVal = (float) magnetic_strength_field;
-				yVal = (float) directionDegree;
-				zVal = 0;
+        if (direction < 0)
+          direction += 2 * Math.PI;
 
-				mGeomagnetic = event.values;
+        double directionDegree = direction * (180 / Math.PI);
+        typeSensor = "MAGNETIC_FIELD";
 
-				String msg = typeSensor + " - " + String.valueOf(xVal) + " - " + String.valueOf(yVal) + " - " + String.valueOf(zVal);
-				Log.d("Sensor", msg);
-				JsonUtils.addValue(typeSensor, current_timestamp, xVal, yVal, zVal);
-			}
+        xVal = (float) magnetic_strength_field;
+        yVal = (float) directionDegree;
+        zVal = 0;
 
-		} else if (event.sensor.getType() == Sensor.TYPE_PRESSURE) {
-			current_timestamp = System.currentTimeMillis();
-			if (checkFrequency(current_timestamp, last_timestampPRES)) {
-				last_timestampPRES = current_timestamp;
-				xVal = event.values[0];
-				typeSensor = "PRESSURE";
-				yVal = 0;
-				zVal = 0;
+        //mGeomagnetic mi serve per il getOrientation()
+        mGeomagnetic = event.values;
 
-				String msg = typeSensor + " - " + String.valueOf(xVal) + " - " + String.valueOf(yVal) + " - " + String.valueOf(zVal);
-				Log.d("Sensor", msg);
-				JsonUtils.addValue(typeSensor, current_timestamp, xVal, yVal, zVal);
-			}
-		}
+        String msg = typeSensor + " - " + String.valueOf(xVal) + " - " + String.valueOf(yVal) + " - " + String.valueOf(zVal);
+        Log.d("Sensor", msg);
 
-		// getOrientation()
-		if (mGravity != null && mGeomagnetic != null) {
-			current_timestamp = System.currentTimeMillis();
-			if (checkFrequency(current_timestamp, last_timestampORIENT)) {
-				last_timestampORIENT = current_timestamp;
-				float R[] = new float[9];
-				float I[] = new float[9];
+        JsonUtils.addValue(typeSensor, current_timestamp, xVal, yVal, zVal);
+      }
 
-				boolean success = SensorManager.getRotationMatrix(R, I, mGravity, mGeomagnetic);
-				if (success) {
-					float orientation[] = new float[3];
-					SensorManager.getOrientation(R, orientation);
+    } else if (event.sensor.getType() == Sensor.TYPE_PRESSURE) {
+      current_timestamp = System.currentTimeMillis();
+      if (checkFrequency(current_timestamp, last_timestampPRES)) {
+        last_timestampPRES = current_timestamp;
 
-					double azimuth = Math.toDegrees(orientation[0]);
-					if (azimuth < 0){
-						azimuth += 360;
-					}
-					Log.d("ORIENTATION", azimuth + " - " + orientation[1] + " - " + orientation[2]);
-					typeSensor = "ORIENTATION";
+        typeSensor = "PRESSURE";
+        yVal = 0;
+        zVal = 0;
 
-					JsonUtils.addValue(typeSensor, current_timestamp, (float)azimuth, orientation[1], orientation[2]);
-				}
-			}
-		}
-	}
+        String msg = typeSensor + " - " + String.valueOf(xVal) + " - " + String.valueOf(yVal) + " - " + String.valueOf(zVal);
+        Log.d("Sensor", msg);
 
-	@Override
-	public void onAccuracyChanged(Sensor sensor, int accuracy) {
-	}
+        JsonUtils.addValue(typeSensor, current_timestamp, xVal, yVal, zVal);
+      }
+    }
+
+    // getOrientation()
+    if (mGravity != null && mGeomagnetic != null) {
+      current_timestamp = System.currentTimeMillis();
+      if (checkFrequency(current_timestamp, last_timestampORIENT)) {
+        last_timestampORIENT = current_timestamp;
+        float R[] = new float[9];
+        float I[] = new float[9];
+
+        boolean success = SensorManager.getRotationMatrix(R, I, mGravity, mGeomagnetic);
+        if (success) {
+          float orientation[] = new float[3];
+          SensorManager.getOrientation(R, orientation);
+
+          double azimuth = Math.toDegrees(orientation[0]);
+          if (azimuth < 0) {
+            azimuth += 360;
+          }
+
+          Log.d("ORIENTATION", azimuth + " - " + orientation[1] + " - " + orientation[2]);
+          typeSensor = "ORIENTATION";
+
+          JsonUtils.addValue(typeSensor, current_timestamp, (float) azimuth, orientation[1], orientation[2]);
+        }
+      }
+    }
+  }
+
+  @Override
+  public void onAccuracyChanged(Sensor sensor, int accuracy) {
+  }
 
 
-	//Printa la lista dei sensori disponibile nel device.
-	public void printListSensor(SensorManager mSensorManager) {
-		sensorList = mSensorManager.getSensorList(Sensor.TYPE_ALL);
-		StringBuilder msg = new StringBuilder();
-		for (Sensor model : sensorList) {
-			msg = msg.append(model.getName());
+  //Printa la lista dei sensori disponibile nel device.
+  public void printListSensor(SensorManager mSensorManager) {
+    sensorList = mSensorManager.getSensorList(Sensor.TYPE_ALL);
+    StringBuilder msg = new StringBuilder();
+    for (Sensor model : sensorList) {
+      msg = msg.append(model.getName());
 
-		}
-		Log.d("LIST", msg.toString());
-	}
+    }
+    Log.d("LIST", msg.toString());
+  }
 
 }
