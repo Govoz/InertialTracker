@@ -31,7 +31,6 @@ public class checkSend extends ParallelIntentService {
 
 	private static final String TAG = checkSend.class.getSimpleName();
 	static String URL = "http://192.168.1.2:80";
-	private static final double FREQUENCY = 2e+9;
 	long last_timestamp;
 	long current_timestamp;
 

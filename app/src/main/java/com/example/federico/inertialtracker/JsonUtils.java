@@ -1,12 +1,7 @@
 package com.example.federico.inertialtracker;
 
-import android.app.Activity;
 import android.content.Context;
-import android.location.Location;
-import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import org.json.JSONArray;
@@ -40,7 +35,7 @@ class JsonUtils {
   static void addGPS(long timestamp, Double lat, Double longit) {
     try {
       JSONObject obj = new JSONObject();
-      obj.put("Timestamp", timeStampReadable(timestamp));
+      obj.put("Timestamp", timestamp);
       obj.put("latitude", lat);
       obj.put("longitude", longit);
 
@@ -53,7 +48,7 @@ class JsonUtils {
   static void addWifi(long timestamp, String bssid, String ssid, int rssi) {
     try {
       JSONObject obj = new JSONObject();
-      obj.put("Timestamp", timeStampReadable(timestamp));
+      obj.put("Timestamp", timestamp);
       obj.put("Bssid", bssid);
       obj.put("Ssid", ssid);
       obj.put("Rssi", rssi);
@@ -67,7 +62,7 @@ class JsonUtils {
   static void addValue(String type, long timestamp, float x, float y, float z) {
     try {
       JSONObject obj = new JSONObject();
-      obj.put("timestamp", timeStampReadable(timestamp));
+      obj.put("timestamp", timestamp);
 
       switch (type) {
         case "ACC":
@@ -150,25 +145,11 @@ class JsonUtils {
     }
   }
 
-  static JSONObject getJsonFile() {
-    return file;
-  }
-
-
   static JSONObject prepareToSend() {
     prepareJson();
     return file;
   }
 
-  //Util for log a large text.
-  public static void largeLog(String tag, String content) {
-    if (content.length() > 4000) {
-      Log.d(tag, content.substring(0, 4000));
-      largeLog(tag, content.substring(4000));
-    } else {
-      Log.d(tag, content);
-    }
-  }
 
   public static boolean checkFrequency(long current, long last) {
     return current - last > parameters.FREQUENCY;

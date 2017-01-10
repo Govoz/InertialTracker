@@ -32,6 +32,7 @@ public class MainActivity extends AppCompatActivity {
     setSupportActionBar(toolbar);
     toolbar.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
 
+    // Inizializzo il LocationManager e il LocationListener
     position = new gpsPosition(MainActivity.this);
 
     //--------------START BUTTON -----------------------------------------
@@ -41,32 +42,35 @@ public class MainActivity extends AppCompatActivity {
     start.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View v) {
-        Toast.makeText(MainActivity.this, "Start", Toast.LENGTH_SHORT).show();
 
-        // Get GPS Position && set Label
-        startGps = position.getGpsPosition();
-        TextView latitudeText = (TextView) findViewById(R.id.latitudeGPS_start);
-        TextView longitudeText = (TextView) findViewById(R.id.longitudeGPS_start);
+        //Controllo se il GPS è attivo
+        boolean gpsStatus = gpsPosition.checkGPSisEnabled();
+        if (!gpsStatus) {
+          Toast.makeText(MainActivity.this, "Attiva il GPS", Toast.LENGTH_LONG).show();
+        } else {
 
-        latitudeText.setVisibility(View.VISIBLE);
-        longitudeText.setVisibility(View.VISIBLE);
+          Toast.makeText(MainActivity.this, "Start", Toast.LENGTH_SHORT).show();
 
-        gpsPosition.setGPSView(startGps, latitudeText, longitudeText);
+          //Ottengo la gps position e aggiorno la label
+          startGps = position.getGpsPosition();
+          TextView latitudeText = (TextView) findViewById(R.id.latitudeGPS_start);
+          TextView longitudeText = (TextView) findViewById(R.id.longitudeGPS_start);
+          latitudeText.setVisibility(View.VISIBLE);
+          longitudeText.setVisibility(View.VISIBLE);
+          gpsPosition.setGPSView(startGps, latitudeText, longitudeText);
 
-        //motionDetection();
+          //Avvio il service e comincia il log dei dati dai sensori
+          Intent logDataStart = new Intent(MainActivity.this, logData.class);
+          startService(logDataStart);
 
-        Intent logDataStart = new Intent(MainActivity.this, logData.class);
-        Intent checkSendStart = new Intent(MainActivity.this, checkSend.class);
-
-        startService(logDataStart);
-        startService(checkSendStart);
-
-        //rendo clickabile il pulsante di stop e rende non clickabile quello di start
-        start.setEnabled(false);
-        stop.setEnabled(true);
-        MenuItem item = mMenu.findItem(R.id.action_changeMode);
-        item.setEnabled(false);
-        item.setVisible(false);
+          //rendo clickabile il pulsante di stop e rende non clickabile quello di start
+          start.setEnabled(false);
+          stop.setEnabled(true);
+          //Disabilito la possibilità di cambiare modalità
+          MenuItem item = mMenu.findItem(R.id.action_changeMode);
+          item.setEnabled(false);
+          item.setVisible(false);
+        }
       }
     });
 
@@ -76,42 +80,50 @@ public class MainActivity extends AppCompatActivity {
 
       @Override
       public void onClick(View v) {
-        stopGps = position.getGpsPosition();
 
-        TextView latitudeText = (TextView) findViewById(R.id.latitudeGPS_stop);
-        TextView longitudeText = (TextView) findViewById(R.id.longitudeGPS_stop);
+        //Controllo se il GPS è attivo
+        boolean gpsStatus = gpsPosition.checkGPSisEnabled();
+        if (!gpsStatus) {
+          Toast.makeText(MainActivity.this, "Attiva il GPS", Toast.LENGTH_LONG).show();
+        } else {
+          //Ottengo la gps position e aggiorno la label
+          stopGps = position.getGpsPosition();
+          TextView latitudeText = (TextView) findViewById(R.id.latitudeGPS_stop);
+          TextView longitudeText = (TextView) findViewById(R.id.longitudeGPS_stop);
+          gpsPosition.setGPSView(stopGps, latitudeText, longitudeText);
+          latitudeText.setVisibility(View.VISIBLE);
+          longitudeText.setVisibility(View.VISIBLE);
 
-        gpsPosition.setGPSView(stopGps, latitudeText, longitudeText);
+          //Interrompo il service
+          Intent logDataStart = new Intent(MainActivity.this, logData.class);
+          stopService(logDataStart);
 
-        latitudeText.setVisibility(View.VISIBLE);
-        longitudeText.setVisibility(View.VISIBLE);
+          //Disabilito il button Stop
+          stop.setEnabled(false);
 
-        Intent logDataStart = new Intent(MainActivity.this, logData.class);
-        Intent checkSendStart = new Intent(MainActivity.this, checkSend.class);
+          //Compongo il fileName
+          String latitudeStart = String.valueOf(startGps.getLatitude());
+          String longitudeStart = String.valueOf(startGps.getLongitude());
+          String latitudeStop = String.valueOf(stopGps.getLatitude());
+          String longitudeStop = String.valueOf(stopGps.getLongitude());
+          String fileName = JsonUtils.setFileName(latitudeStart, longitudeStart, latitudeStop, longitudeStop);
 
-        stopService(logDataStart);
-        stopService(checkSendStart);
+          //Salvo il jsonFile
+          String jsonString = JsonUtils.save(MainActivity.this, fileName);
 
-        stop.setEnabled(false);
+          //Mostro il jsonFile e rendo la textView scrollable
+          TextView jsonTextView = (TextView) findViewById(R.id.jsonText);
+          jsonTextView.setMovementMethod(new ScrollingMovementMethod());
+          jsonTextView.setText(jsonString);
 
-        String latitudeStart = String.valueOf(startGps.getLatitude());
-        String longitudeStart = String.valueOf(startGps.getLongitude());
-        String latitudeStop = String.valueOf(stopGps.getLatitude());
-        String longitudeStop = String.valueOf(stopGps.getLongitude());
-        String fileName = JsonUtils.setFileName(latitudeStart, longitudeStart, latitudeStop, longitudeStop);
+          //Mostro la label contenente il nome del file
+          TextView labelFileName = (TextView) findViewById(R.id.filenameTextView);
+          labelFileName.setText(fileName);
 
-        String jsonString = JsonUtils.save(MainActivity.this, fileName);
-
-        //set textView
-        TextView jsonTextView = (TextView) findViewById(R.id.jsonText);
-        jsonTextView.setMovementMethod(new ScrollingMovementMethod());
-        jsonTextView.setText(jsonString);
-
-        TextView labelFileName = (TextView) findViewById(R.id.filenameTextView);
-        labelFileName.setText(fileName);
-
-        View hr = (View) findViewById(R.id.hr);
-        hr.setVisibility(View.VISIBLE);
+          //Mostro la horizontal rules
+          View hr = (View) findViewById(R.id.hr);
+          hr.setVisibility(View.VISIBLE);
+        }
       }
     });
 
@@ -121,7 +133,7 @@ public class MainActivity extends AppCompatActivity {
     final TextView latitudeGPS_stopTextView = (TextView) findViewById(R.id.latitudeGPS_stop);
     final TextView longitudeGPS_stopTextView = (TextView) findViewById(R.id.longitudeGPS_stop);
 
-
+    //Ogni coordinata la rendo clickabile, quando clickata parte l'intent verso GMaps
     latitudeGPS_startTextView.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View v) {

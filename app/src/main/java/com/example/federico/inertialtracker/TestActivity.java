@@ -35,14 +35,21 @@ public class TestActivity extends AppCompatActivity {
     activate.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View v) {
-        startGps = position.getGpsPosition();
 
-        motionDetection();
-        activate.setEnabled(false);
+        //Controllo se il GPS è attivo
+        boolean gpsStatus = gpsPosition.checkGPSisEnabled();
+        if (!gpsStatus) {
+          Toast.makeText(TestActivity.this, "Attiva il GPS", Toast.LENGTH_LONG).show();
+        } else {
+          startGps = position.getGpsPosition();
 
-        MenuItem item = mMenu.findItem(R.id.action_changeMode);
-        item.setEnabled(false);
-        item.setVisible(false);
+          motionDetection();
+          activate.setEnabled(false);
+
+          MenuItem item = mMenu.findItem(R.id.action_changeMode);
+          item.setEnabled(false);
+          item.setVisible(false);
+        }
       }
     });
   }
