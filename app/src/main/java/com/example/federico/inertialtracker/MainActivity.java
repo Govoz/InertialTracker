@@ -1,6 +1,5 @@
 package com.example.federico.inertialtracker;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.location.Location;
 import android.net.Uri;
@@ -15,16 +14,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import org.json.JSONObject;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-
-import static java.security.AccessController.getContext;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -47,37 +36,37 @@ public class MainActivity extends AppCompatActivity {
 
     //--------------START BUTTON -----------------------------------------
     final Button start = (Button) findViewById(R.id.start_button);
-    final Button stop = (Button) findViewById(R.id.stop);
+    final Button stop = (Button) findViewById(R.id.stop_button);
 
     start.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View v) {
-          Toast.makeText(MainActivity.this, "Start", Toast.LENGTH_SHORT).show();
+        Toast.makeText(MainActivity.this, "Start", Toast.LENGTH_SHORT).show();
 
-          // Get GPS Position && set Label
-          startGps = position.getGpsPosition(MainActivity.this);
-          TextView latitudeText = (TextView) findViewById(R.id.latitudeGPS_start);
-          TextView longitudeText = (TextView) findViewById(R.id.longitudeGPS_start);
+        // Get GPS Position && set Label
+        startGps = position.getGpsPosition();
+        TextView latitudeText = (TextView) findViewById(R.id.latitudeGPS_start);
+        TextView longitudeText = (TextView) findViewById(R.id.longitudeGPS_start);
 
-          latitudeText.setVisibility(View.VISIBLE);
-          longitudeText.setVisibility(View.VISIBLE);
+        latitudeText.setVisibility(View.VISIBLE);
+        longitudeText.setVisibility(View.VISIBLE);
 
-          gpsPosition.setGPSView(startGps, latitudeText, longitudeText);
+        gpsPosition.setGPSView(startGps, latitudeText, longitudeText);
 
-          //motionDetection();
+        //motionDetection();
 
-          Intent logDataStart = new Intent(MainActivity.this, logData.class);
-          Intent checkSendStart = new Intent(MainActivity.this, checkSend.class);
+        Intent logDataStart = new Intent(MainActivity.this, logData.class);
+        Intent checkSendStart = new Intent(MainActivity.this, checkSend.class);
 
-          startService(logDataStart);
-          startService(checkSendStart);
+        startService(logDataStart);
+        startService(checkSendStart);
 
-          //rendo clickabile il pulsante di stop e rende non clickabile quello di start
-          start.setEnabled(false);
-          stop.setEnabled(true);
-          MenuItem item = mMenu.findItem(R.id.action_changeMode);
-          item.setEnabled(false);
-          item.setVisible(false);
+        //rendo clickabile il pulsante di stop e rende non clickabile quello di start
+        start.setEnabled(false);
+        stop.setEnabled(true);
+        MenuItem item = mMenu.findItem(R.id.action_changeMode);
+        item.setEnabled(false);
+        item.setVisible(false);
       }
     });
 
@@ -87,7 +76,7 @@ public class MainActivity extends AppCompatActivity {
 
       @Override
       public void onClick(View v) {
-        stopGps = position.getGpsPosition(MainActivity.this);
+        stopGps = position.getGpsPosition();
 
         TextView latitudeText = (TextView) findViewById(R.id.latitudeGPS_stop);
         TextView longitudeText = (TextView) findViewById(R.id.longitudeGPS_stop);
@@ -109,7 +98,7 @@ public class MainActivity extends AppCompatActivity {
         String longitudeStart = String.valueOf(startGps.getLongitude());
         String latitudeStop = String.valueOf(stopGps.getLatitude());
         String longitudeStop = String.valueOf(stopGps.getLongitude());
-        String fileName = JsonUtils.setFileName(latitudeStart, longitudeStart, latitudeStop, longitudeStop );
+        String fileName = JsonUtils.setFileName(latitudeStart, longitudeStart, latitudeStop, longitudeStop);
 
         String jsonString = JsonUtils.save(MainActivity.this, fileName);
 
@@ -120,6 +109,9 @@ public class MainActivity extends AppCompatActivity {
 
         TextView labelFileName = (TextView) findViewById(R.id.filenameTextView);
         labelFileName.setText(fileName);
+
+        View hr = (View) findViewById(R.id.hr);
+        hr.setVisibility(View.VISIBLE);
       }
     });
 
@@ -202,6 +194,7 @@ public class MainActivity extends AppCompatActivity {
       }
     });
   }
+
 
   @Override
   public boolean onCreateOptionsMenu(Menu menu) {

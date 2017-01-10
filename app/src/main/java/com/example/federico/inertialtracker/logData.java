@@ -58,7 +58,6 @@ public class logData extends ParallelIntentService implements SensorEventListene
     Log.d(TAG, "onHandleIntent(Intent); Started, thread id: " + Thread.currentThread().getId());
 
     try {
-      // voglio provare a mettere tutto questo tranne lo sleep nel costruttore
       mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
 
       accelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);

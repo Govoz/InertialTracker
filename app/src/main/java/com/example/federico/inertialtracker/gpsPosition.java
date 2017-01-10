@@ -53,7 +53,7 @@ class gpsPosition {
     }
   }
 
-  public Location getGpsPosition(Context c) {
+  public Location getGpsPosition() {
     if (mCurrentLocation != null) {
       double latitude = mCurrentLocation.getLatitude();
       double longitude = mCurrentLocation.getLongitude();

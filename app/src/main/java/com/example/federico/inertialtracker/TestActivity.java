@@ -15,7 +15,7 @@ import android.widget.Toast;
 public class TestActivity extends AppCompatActivity {
 
   Button activate;
-  private static Location startGps;
+  Location startGps;
   gpsPosition position;
   Menu mMenu;
 
@@ -35,7 +35,7 @@ public class TestActivity extends AppCompatActivity {
     activate.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View v) {
-        startGps = position.getGpsPosition(TestActivity.this);
+        startGps = position.getGpsPosition();
 
         motionDetection();
         activate.setEnabled(false);

@@ -154,12 +154,6 @@ class JsonUtils {
     return file;
   }
 
-  static String readJsonFile() {
-    prepareJson();
-    String json = getJsonFile().toString();
-
-    return json;
-  }
 
   static JSONObject prepareToSend() {
     prepareJson();
