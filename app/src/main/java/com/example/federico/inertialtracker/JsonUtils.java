@@ -1,7 +1,6 @@
 package com.example.federico.inertialtracker;
 
 import android.content.Context;
-import android.util.Log;
 import android.widget.Toast;
 
 import org.json.JSONArray;
@@ -9,7 +8,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -17,7 +15,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
- * Created by Federico on 30-Nov-16.
+ * JsonUtils è una classe che serve per gestire il file Json che contiene tutti i dati prelevati dai
+ * sensori.
  */
 
 class JsonUtils {
@@ -145,33 +144,34 @@ class JsonUtils {
     }
   }
 
+  // prepareToSend chiama prepareJson e mi ritorna il JSONObject corrispondente al file.
   static JSONObject prepareToSend() {
     prepareJson();
     return file;
   }
 
-
+  // checkFrequency restituisce true se la differenza tra i due timestamp "current" e "last" è superiore
+  // alla FREQUENCY.
   public static boolean checkFrequency(long current, long last) {
     return current - last > parameters.FREQUENCY;
   }
 
+  // timeStampReadable trasforma il timestamp passato come parametro in un formato human-readable.
   public static String timeStampReadable(long timestamp) {
     SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss:SSS");
-    String msg = dateFormat.format(new Date(timestamp));
-
-    return msg;
+    return dateFormat.format(new Date(timestamp));
   }
 
+  // save serve per salvare manualmente il file di nome "fileName" nella memoria del device.
   public static String save(Context c, String fileName) {
 
     JSONObject json = JsonUtils.prepareToSend();
 
-    Toast.makeText(c, fileName, Toast.LENGTH_SHORT).show();
-
+    // Creo un file nella directory corrispondente e trasformo il JsonObject in stringa.
     File file = new File(c.getExternalFilesDir(null), fileName);
-
     String jsonString = json.toString();
 
+    // Creo un FileOutputStream e un OutputStreamWriter e ci appendo la stringa corrispondente al json.
     try {
       FileOutputStream fOut = new FileOutputStream(file, true);
       OutputStreamWriter myOutWriter = new OutputStreamWriter(fOut);
@@ -183,15 +183,13 @@ class JsonUtils {
       Toast.makeText(c, "Salvato", Toast.LENGTH_SHORT).show();
 
       return jsonString;
-
-    } catch (FileNotFoundException e) {
-      e.printStackTrace();
     } catch (IOException e) {
       e.printStackTrace();
     }
     return "";
   }
 
+  // Crea la stringa che indica il nome del file in questa maniera: "latitudeStart_longitudeStart__latitudeStop_longitudeStop_timestamp"
   public static String setFileName(String latitudeStart, String longitudeStart, String latitudeStop, String longitudeStop) {
     String timeStamp = JsonUtils.timeStampReadable(System.currentTimeMillis());
     String fileName = latitudeStart + "_" + longitudeStart + "__" + latitudeStop + "_" + longitudeStop + "_" + timeStamp + ".txt";

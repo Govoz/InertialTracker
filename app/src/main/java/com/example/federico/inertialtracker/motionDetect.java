@@ -11,6 +11,7 @@ import android.widget.Toast;
 
 /**
  * Created by Federico on 02-Dec-16.
+ *
  */
 
 class motionDetect implements SensorEventListener {

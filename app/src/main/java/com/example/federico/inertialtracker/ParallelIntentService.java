@@ -67,7 +67,7 @@ public abstract class ParallelIntentService extends Service {
 		}
 
 		public void run() {
-			while(mRunnable) {
+			while(true) {
 				onHandleIntent(intent);
 			}
 		}

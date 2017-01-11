@@ -10,16 +10,14 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.widget.TextView;
-import android.widget.Toast;
 
 /**
- * Created by Federico on 30-Nov-16.
+ * gpsPosition è una classe adibita ad ottenere la attuale posizione gps.
  */
 
 class gpsPosition {
-  private static final int MY_PERMISSION_ACCESS_COURSE_LOCATION = 11;
-  static Location mCurrentLocation;
-  static LocationManager locationManager;
+  private static Location mCurrentLocation;
+  private static LocationManager locationManager;
   static Context c;
 
   gpsPosition(Context c) {
@@ -46,7 +44,7 @@ class gpsPosition {
 
       if (ActivityCompat.checkSelfPermission(c, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(c, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
         ActivityCompat.requestPermissions((Activity) c, new String[]{android.Manifest.permission.ACCESS_COARSE_LOCATION},
-                MY_PERMISSION_ACCESS_COURSE_LOCATION);
+                parameters.MY_PERMISSION_ACCESS_COURSE_LOCATION);
       }
 
       //MinTime, MinDistance = 0

@@ -9,7 +9,7 @@ import com.loopj.android.http.SyncHttpClient;
 
 
 /**
- * Created by Federico on 24-Nov-16.
+ * HttpRequest è una classe il cui scopo è fare richieste Http.
  *
  * http://stackoverflow.com/questions/24646635/android-loopj-async-http-crashes-after-1-4-5-update
  */
@@ -29,7 +29,7 @@ public class HttpRequest {
 	}
 
 	private static String getAbsoluteUrl(String relativeUrl) {
-		return checkSend.URL + relativeUrl;
+		return parameters.URL + relativeUrl;
 	}
 
 	/**

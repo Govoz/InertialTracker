@@ -7,14 +7,13 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.util.Log;
-import android.widget.Toast;
 
 import java.util.List;
 
 import static com.example.federico.inertialtracker.JsonUtils.checkFrequency;
 
 /**
- * Created by Federico on 15-Nov-16.
+ * logData è un service e si occupa di registrare tutti i dati provenienti dai sensori.
  */
 
 public class logData extends ParallelIntentService implements SensorEventListener {
@@ -80,6 +79,11 @@ public class logData extends ParallelIntentService implements SensorEventListene
     }
   }
 
+  /**
+  * A seconda del SensorEvent mi calcolo il timestamp e controllo se considerare l'evento o meno con
+  * checkFrequency. Setto il type_Sensor e a seconda di esso tratto i dati diversamente per poi
+  * aggiungerli al Json.
+  */
   @Override
   public void onSensorChanged(SensorEvent event) {
     float xVal = event.values[0];
@@ -116,6 +120,7 @@ public class logData extends ParallelIntentService implements SensorEventListene
       if (checkFrequency(current_timestamp, last_timestampMAGN)) {
         last_timestampMAGN = current_timestamp;
 
+        // Mi calcolo la magnitudo e la direzione.
         double magnetic_strength_field = Math.sqrt(Math.pow(xVal, 2) + Math.pow(yVal, 2) + Math.pow(zVal, 2));
         double direction = (Math.atan2(xVal, yVal));
 
@@ -196,5 +201,4 @@ public class logData extends ParallelIntentService implements SensorEventListene
     }
     Log.d("LIST", msg.toString());
   }
-
 }
