@@ -16,7 +16,6 @@ import android.widget.Toast;
 
 class motionDetect implements SensorEventListener {
 
-
   private static SensorManager mSensorManager;
   private double mGravity;
   private Context context;

@@ -8,6 +8,7 @@ import android.net.wifi.ScanResult;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
+import android.text.TextUtils;
 import android.util.Log;
 
 import java.sql.Timestamp;
@@ -90,9 +91,10 @@ public class checkSend extends ParallelIntentService {
     } else {
       // Cerco una rete di tipo Open a cui collegarmi
       ScanResult wifiNetwork = searchFreeWifi();
-
+      Log.d("TEST", wifiNetwork.toString());
       if (wifiNetwork != null) {
         // mi connetto ad essa
+        Log.d("TEST", wifiNetwork.toString());
         connectToWifi(wifiNetwork);
 
         // ricontrollo la networkActive
@@ -126,7 +128,7 @@ public class checkSend extends ParallelIntentService {
       String capability = result.capabilities;
 
       // Controllo che siano di tipo Open
-      if (   !(capability.toUpperCase().contains("WEP")) &&  !(capability.toUpperCase().contains("WPA"))  ) {
+      if (!(capability.toUpperCase().contains("WEP")) && !(capability.toUpperCase().contains("WPA"))) {
 
         // Cerca la rete con il massimo valore di RSSI.
         if (result.level > maxPowerRSSI) {
@@ -145,9 +147,10 @@ public class checkSend extends ParallelIntentService {
     WifiConfiguration wc = new WifiConfiguration();
     String networkSSID = wifiNetwork.SSID;
     wc.SSID = "\"" + networkSSID + "\"";
+    wc.BSSID = wifiNetwork.BSSID;
+
     wc.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.NONE);
 
-    Log.d("TEST", networkSSID);
     WifiManager wm = (WifiManager) getSystemService(Context.WIFI_SERVICE);
 
     // Aggiungo la configurazione alla lista delle network. netID in caso di fallimento è -1
@@ -156,7 +159,7 @@ public class checkSend extends ParallelIntentService {
 
     // Nel caso in cui io sia riuscito ad aggiungere la nuova network. Disconnetto il wifiManager,
     // abilito la nuova rete e mi riconnetto.
-    if(netID != -1) {
+    if (netID != -1) {
       wm.disconnect();
       wm.enableNetwork(netID, true);
       wm.reconnect();
@@ -197,20 +200,22 @@ public class checkSend extends ParallelIntentService {
     data.put("timestamp", timestamp);
     data.put("data", dataJson);
 
-    HttpRequest.post(parameters.URL, data, new AsyncHttpResponseHandler() {
+    try {
+      HttpRequest.post(parameters.URL, data, new AsyncHttpResponseHandler() {
 
-      @Override
-      public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-        Log.d("Send", "Invio Eseguito");
-      }
+        @Override
+        public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+          Log.d("Send", "Invio Eseguito");
+        }
 
-      @Override
-      public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-        Log.d("Send", "Invio Fallito");
-      }
-    });
-
+        @Override
+        public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+          Log.d("Send", "Invio Fallito");
+        }
+      });
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
   }
 
 }
-
