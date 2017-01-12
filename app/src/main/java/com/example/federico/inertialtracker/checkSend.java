@@ -52,7 +52,11 @@ public class checkSend extends ParallelIntentService {
 
           JSONObject toSendJSON = JsonUtils.prepareToSend();
           // Invio il file al server.
-          //sendData(toSendJSON);
+          try {
+            sendData(toSendJSON);
+          } catch (Exception e){
+            e.printStackTrace();
+          }
         }
       } else {
         Log.d("CheckConnection", "Non è possibile connettersi.");
